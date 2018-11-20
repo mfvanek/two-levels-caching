@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek
+ */
+
 package com.mfvanek.caching.models;
 
 import com.mfvanek.caching.interfaces.Cacheable;
@@ -25,5 +30,10 @@ public class Movie implements Cacheable<String> {
     @Override
     public String getIdentifier() {
         return imdb;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Movie:{title:%s, year:%s, imdb:%s}", getTitle(), getYear(), getIdentifier());
     }
 }

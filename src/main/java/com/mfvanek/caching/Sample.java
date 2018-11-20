@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek
+ */
+
 package com.mfvanek.caching;
 
 import com.mfvanek.caching.builders.CacheBuilder;
@@ -5,22 +10,35 @@ import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 
-public class Sample {
+class Sample {
+
+    private static Cache<String, Movie> cache;
 
     public static void main(String[] args) {
         try {
             System.out.println("This is a caching demo app");
 
             final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance();
-            final Cache<String, Movie> cache = builder.build();
+            cache = builder.setMaxSize(3).build();
 
-            final Movie snowden = Movies.getSnowden();
-            cache.put(snowden.getIdentifier(), snowden);
+            fillCache();
+            testCache();
 
-            System.out.println("Press any key to exit...");
-            System.in.read();
+            System.out.println("Closing app...");
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void fillCache() {
+        final Movie snowden = Movies.getSnowden();
+        cache.put(snowden.getIdentifier(), snowden);
+        cache.put(snowden);
+    }
+
+    private static void testCache() {
+        System.out.println("=== Testing cache ===");
+        final Movie snowden = cache.get(Movies.SNOWDEN_IMDB);
+        System.out.println("From cache = " + snowden);
     }
 }
