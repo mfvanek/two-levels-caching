@@ -13,17 +13,17 @@ public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType>>  {
 
     public static final int DEFAULT_MAX_SIZE = 10;
 
-    private int cacheMaxSize = DEFAULT_MAX_SIZE;
+    private int maxCacheSize = DEFAULT_MAX_SIZE;
 
     private CacheBuilder() {
     }
 
     public Cache<KeyType, ValueType> build() {
-        return new SimpleInMemoryCache<>(cacheMaxSize);
+        return new SimpleInMemoryCache<>(maxCacheSize);
     }
 
-    public CacheBuilder<KeyType, ValueType> setMaxSize(int cacheMaxSize) {
-        this.cacheMaxSize = cacheMaxSize;
+    public CacheBuilder<KeyType, ValueType> setMaxSize(int maxCacheSize) {
+        this.maxCacheSize = maxCacheSize;
         return this;
     }
 

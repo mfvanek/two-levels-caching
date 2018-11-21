@@ -7,46 +7,26 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.interfaces.Cacheable;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
-public class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractCache<KeyType, ValueType> {
+public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractMapCache<KeyType, ValueType> {
 
-    private final Map<KeyType, ValueType> innerMap;
-
-    public SimpleInMemoryCache(int cacheMaxSize) {
-        super(cacheMaxSize);
-        innerMap = new LinkedHashMap<KeyType, ValueType>(cacheMaxSize) {
+    public SimpleInMemoryCache(int maxCacheSize) {
+        super(maxCacheSize, new LinkedHashMap<KeyType, ValueType>(maxCacheSize) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<KeyType, ValueType> eldest) {
-                return size() > getCacheMaxSize();
+                return size() > maxCacheSize;
             }
-        };
+        });
     }
 
     @Override
-    public void put(KeyType key, ValueType value) {
-        innerMap.put(key, value);
-    }
-
-    public ValueType get(KeyType key) {
-        return innerMap.get(key);
-    }
-
-    public boolean containsKey(KeyType key) {
-        return innerMap.containsKey(key);
-    }
-
-    public ValueType remove(KeyType key) {
-        return innerMap.remove(key);
-    }
-
-    public void clear() {
-        innerMap.clear();
-    }
-
-    @Override
-    public int size() {
-        return innerMap.size();
+    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) {
+        getInnerMap().put(key, value);
+        // In this case we always return an empty list because we don't control eviction from the cache
+        return Collections.emptyList();
     }
 }

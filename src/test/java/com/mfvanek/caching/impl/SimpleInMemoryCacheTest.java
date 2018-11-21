@@ -13,6 +13,9 @@ import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.Map;
+
 class SimpleInMemoryCacheTest {
 
     private static final int MAX_SIZE = 2;
@@ -23,9 +26,10 @@ class SimpleInMemoryCacheTest {
     @Test
     void putWithKey() {
         final Cache<String, Movie> cache = createCache();
-        cache.put(SNOWDEN.getIdentifier(), SNOWDEN);
+        List<Map.Entry<String, Movie>> evictedItems = cache.put(SNOWDEN.getIdentifier(), SNOWDEN);
 
         assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
+        assertEquals(0, evictedItems.size());
     }
 
     @Test
@@ -79,9 +83,10 @@ class SimpleInMemoryCacheTest {
     @Test
     void putOnlyValue() {
         final Cache<String, Movie> cache = createCache();
-        cache.put(SNOWDEN);
+        List<Movie> evictedItems = cache.put(SNOWDEN);
 
         assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
+        assertEquals(0, evictedItems.size());
     }
 
     private static Cache<String, Movie> createCache() {

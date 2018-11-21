@@ -8,20 +8,25 @@ package com.mfvanek.caching.impl;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.interfaces.Cacheable;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 abstract class AbstractCache<KeyType, ValueType extends Cacheable<KeyType>> implements Cache<KeyType, ValueType> {
 
-    private final int cacheMaxSize;
+    private final int maxCacheSize;
 
-    protected AbstractCache(int cacheMaxSize) {
-        this.cacheMaxSize = cacheMaxSize;
+    protected AbstractCache(int maxCacheSize) {
+        this.maxCacheSize = maxCacheSize;
     }
 
     protected int getCacheMaxSize() {
-        return cacheMaxSize;
+        return maxCacheSize;
     }
 
     @Override
-    public void put(ValueType value) {
-        this.put(value.getIdentifier(), value);
+    public List<ValueType> put(ValueType value) {
+        return this.put(value.getIdentifier(), value).
+                stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 }
