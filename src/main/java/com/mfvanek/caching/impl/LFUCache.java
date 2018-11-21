@@ -7,14 +7,7 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.interfaces.Cacheable;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractMapCache<KeyType, ValueType> {
 
@@ -86,26 +79,28 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
     }
 
     private List<Map.Entry<KeyType, ValueType>> doEviction() {
+        // This method will be called only when cache is full
         final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();
-        /* TODO
         final float target = getCacheMaxSize() * evictionFactor;
+        int currentlyDeleted = 0;
         while (currentlyDeleted < target) {
-            LinkedHashSet<CacheNode<Key, Value>> nodes = frequencyList[lowestFrequency];
-            if (nodes.isEmpty()) {
-                throw new IllegalStateException("Lowest frequency constraint violated!");
-            } else {
-                Iterator<CacheNode<Key, Value>> it = nodes.iterator();
-                while (it.hasNext() && currentlyDeleted++ < target) {
-                    CacheNode<Key, Value> node = it.next();
-                    it.remove();
-                    cache.remove(node.k);
-                }
-                if (!it.hasNext()) {
-                    findNextLowestFrequency();
-                }
+            final Integer lowestFrequency = getLowestFrequency();
+            final Set<KeyType> keys = frequenciesList.get(lowestFrequency);
+            Iterator<KeyType> it = keys.iterator();
+            while (it.hasNext() && currentlyDeleted < target) {
+                final KeyType key = it.next();
+                final ValueType value = super.remove(key);
+                innerFrequencyMap.remove(key);
+                it.remove();
+                evictedItems.add(new AbstractMap.SimpleEntry<>(key, value));
+                ++currentlyDeleted;
             }
         }
-        */
         return evictedItems;
+    }
+
+    private Integer getLowestFrequency() {
+        Optional<Integer> minFrequency = frequenciesList.keySet().stream().min(Integer::compareTo);
+        return minFrequency.orElse(0);
     }
 }

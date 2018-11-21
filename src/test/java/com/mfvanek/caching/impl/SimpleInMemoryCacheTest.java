@@ -8,6 +8,7 @@ package com.mfvanek.caching.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.mfvanek.caching.builders.CacheBuilder;
+import com.mfvanek.caching.exceptions.InvalidCacheTypeException;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
@@ -24,7 +25,7 @@ class SimpleInMemoryCacheTest {
     private static final Movie INCEPTION = Movies.getInception();
 
     @Test
-    void putWithKey() {
+    void putWithKey() throws Exception {
         final Cache<String, Movie> cache = createCache();
         List<Map.Entry<String, Movie>> evictedItems = cache.put(SNOWDEN.getIdentifier(), SNOWDEN);
 
@@ -33,7 +34,7 @@ class SimpleInMemoryCacheTest {
     }
 
     @Test
-    void get() {
+    void get() throws Exception {
         final Cache<String, Movie> cache = createCache(3);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
@@ -44,7 +45,7 @@ class SimpleInMemoryCacheTest {
     }
 
     @Test
-    void containsKey() {
+    void containsKey() throws Exception {
         final Cache<String, Movie> cache = createCache(3);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
@@ -66,7 +67,7 @@ class SimpleInMemoryCacheTest {
     }
 
     @Test
-    void size() {
+    void size() throws Exception {
         final Cache<String, Movie> cache = createCache();
         assertEquals(0, cache.size());
 
@@ -81,7 +82,7 @@ class SimpleInMemoryCacheTest {
     }
 
     @Test
-    void putOnlyValue() {
+    void putOnlyValue() throws Exception {
         final Cache<String, Movie> cache = createCache();
         List<Movie> evictedItems = cache.put(SNOWDEN);
 
@@ -89,11 +90,11 @@ class SimpleInMemoryCacheTest {
         assertEquals(0, evictedItems.size());
     }
 
-    private static Cache<String, Movie> createCache() {
+    private static Cache<String, Movie> createCache() throws InvalidCacheTypeException {
         return createCache(MAX_SIZE);
     }
 
-    private static Cache<String, Movie> createCache(int maxSize) {
+    private static Cache<String, Movie> createCache(int maxSize) throws InvalidCacheTypeException {
         final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance();
         return builder.setMaxSize(maxSize).build();
     }
