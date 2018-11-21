@@ -22,22 +22,43 @@ class SimpleInMemoryCacheTest {
 
     @Test
     void putWithKey() {
+        final Cache<String, Movie> cache = createCache();
+        cache.put(SNOWDEN.getIdentifier(), SNOWDEN);
+
+        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
     }
 
     @Test
     void get() {
+        final Cache<String, Movie> cache = createCache(3);
+        cache.put(AQUAMAN);
+        cache.put(SNOWDEN);
+        cache.put(INCEPTION);
+
+        assertNull(cache.get(null));
+        assertEquals(INCEPTION, cache.get(Movies.INCEPTION_IMDB));
     }
 
     @Test
     void containsKey() {
+        final Cache<String, Movie> cache = createCache(3);
+        cache.put(AQUAMAN);
+        cache.put(SNOWDEN);
+        cache.put(INCEPTION);
+
+        assertFalse(cache.containsKey(null));
+        assertFalse(cache.containsKey(""));
+        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
     }
 
     @Test
     void remove() {
+        // TODO
     }
 
     @Test
     void clear() {
+        // TODO
     }
 
     @Test
@@ -57,10 +78,18 @@ class SimpleInMemoryCacheTest {
 
     @Test
     void putOnlyValue() {
+        final Cache<String, Movie> cache = createCache();
+        cache.put(SNOWDEN);
+
+        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
     }
 
-    private Cache<String, Movie> createCache() {
+    private static Cache<String, Movie> createCache() {
+        return createCache(MAX_SIZE);
+    }
+
+    private static Cache<String, Movie> createCache(int maxSize) {
         final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance();
-        return builder.setMaxSize(MAX_SIZE).build();
+        return builder.setMaxSize(maxSize).build();
     }
 }

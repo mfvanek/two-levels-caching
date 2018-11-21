@@ -6,8 +6,10 @@
 package com.mfvanek.caching.models;
 
 import com.mfvanek.caching.interfaces.Cacheable;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Movie implements Cacheable<String> {
+public final class Movie implements Cacheable<String> {
 
     private final String title;
     private final int year;
@@ -30,6 +32,38 @@ public class Movie implements Cacheable<String> {
     @Override
     public String getIdentifier() {
         return imdb;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+
+        Movie rhs = (Movie) obj;
+        return new EqualsBuilder()
+                .appendSuper(super.equals(obj))
+                .append(title, rhs.title)
+                .append(year, rhs.year)
+                .append(imdb, rhs.imdb)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(11, 23).
+                append(title).
+                append(year).
+                append(imdb).
+                toHashCode();
     }
 
     @Override
