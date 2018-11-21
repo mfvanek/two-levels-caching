@@ -17,7 +17,7 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
 
     public LFUCache(int maxCacheSize, float evictionFactor) {
         super(maxCacheSize, new HashMap<>(maxCacheSize));
-        if (evictionFactor <= 0 || evictionFactor >= 1) {
+        if (evictionFactor <= 0.0f || evictionFactor > 1.0f) {
             throw new IllegalArgumentException("Eviction factor must be greater than 0 and less than or equal to 1");
         }
         this.evictionFactor = evictionFactor;
@@ -55,7 +55,7 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
         final ValueType value = super.get(key);
         if (value != null) {
             final Integer frequency = innerFrequencyMap.get(key);
-            frequenciesList.get(frequency).remove(key);
+            removeKeyFromFrequenciesList(key, frequency);
             rememberFrequency(frequency + 1, key);
         }
         return value;
@@ -66,9 +66,18 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
         final ValueType value = super.remove(key);
         if (value != null) {
             final Integer frequency = innerFrequencyMap.remove(key);
-            frequenciesList.get(frequency).remove(key);
+            removeKeyFromFrequenciesList(key, frequency);
         }
         return value;
+    }
+
+    private void removeKeyFromFrequenciesList(KeyType key, Integer frequency) {
+        final Set<KeyType> keys = frequenciesList.get(frequency);
+        if (keys.size() > 1) {
+            keys.remove(key);
+        } else {
+            frequenciesList.remove(frequency);
+        }
     }
 
     @Override
@@ -76,6 +85,13 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
         super.clear();
         frequenciesList.clear();
         innerFrequencyMap.clear();
+    }
+
+    public int frequencyOf(KeyType key) throws NoSuchElementException {
+        if (containsKey(key)) {
+            return innerFrequencyMap.get(key);
+        }
+        throw new NoSuchElementException("Key " + key + " not found in the cache");
     }
 
     private List<Map.Entry<KeyType, ValueType>> doEviction() {
@@ -87,13 +103,12 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
             final Integer lowestFrequency = getLowestFrequency();
             final Set<KeyType> keys = frequenciesList.get(lowestFrequency);
             Iterator<KeyType> it = keys.iterator();
-            while (it.hasNext() && currentlyDeleted < target) {
+            while (it.hasNext() && currentlyDeleted++ < target) {
                 final KeyType key = it.next();
                 final ValueType value = super.remove(key);
                 innerFrequencyMap.remove(key);
                 it.remove();
                 evictedItems.add(new AbstractMap.SimpleEntry<>(key, value));
-                ++currentlyDeleted;
             }
         }
         return evictedItems;

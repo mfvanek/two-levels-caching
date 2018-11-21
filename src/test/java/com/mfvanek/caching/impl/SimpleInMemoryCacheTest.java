@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.mfvanek.caching.builders.CacheBuilder;
 import com.mfvanek.caching.exceptions.InvalidCacheTypeException;
+import com.mfvanek.caching.helpers.BaseCacheTest;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
@@ -17,12 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Map;
 
-class SimpleInMemoryCacheTest {
-
-    private static final int MAX_SIZE = 2;
-    private static final Movie SNOWDEN = Movies.getSnowden();
-    private static final Movie AQUAMAN = Movies.getAquaman();
-    private static final Movie INCEPTION = Movies.getInception();
+class SimpleInMemoryCacheTest extends BaseCacheTest {
 
     @Test
     void putWithKey() throws Exception {
