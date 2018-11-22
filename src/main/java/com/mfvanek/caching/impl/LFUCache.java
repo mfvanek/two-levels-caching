@@ -9,6 +9,12 @@ import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.util.*;
 
+/**
+ * Thread unsafe implementation of LFU cache (Least Frequently Used).
+ * @see <a href="https://en.wikipedia.org/wiki/Least_frequently_used">https://en.wikipedia.org/wiki/Least_frequently_used</a>
+ * @param <KeyType>
+ * @param <ValueType>
+ */
 public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractMapCache<KeyType, ValueType> {
 
     private final float evictionFactor;

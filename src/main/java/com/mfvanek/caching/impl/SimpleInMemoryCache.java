@@ -12,6 +12,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The simplest thread unsafe implementation of in-memory cache
+ * @param <KeyType>
+ * @param <ValueType>
+ */
 public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractMapCache<KeyType, ValueType> {
 
     public SimpleInMemoryCache(int maxCacheSize) {
