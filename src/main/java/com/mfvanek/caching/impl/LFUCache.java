@@ -5,9 +5,17 @@
 
 package com.mfvanek.caching.impl;
 
+import com.mfvanek.caching.helpers.LFUCacheHelper;
 import com.mfvanek.caching.interfaces.Cacheable;
 
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 /**
  * Thread unsafe implementation of LFU cache (Least Frequently Used).
@@ -17,18 +25,11 @@ import java.util.*;
  */
 public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractMapCache<KeyType, ValueType> {
 
-    private final float evictionFactor;
-    private final Map<Integer, Set<KeyType>> frequenciesList;
-    private final Map<KeyType, Integer> innerFrequencyMap;
+    private final LFUCacheHelper<KeyType> helper;
 
     public LFUCache(int maxCacheSize, float evictionFactor) {
         super(maxCacheSize, new HashMap<>(maxCacheSize));
-        if (evictionFactor <= 0.0f || evictionFactor > 1.0f) {
-            throw new IllegalArgumentException("Eviction factor must be greater than 0 and less than or equal to 1");
-        }
-        this.evictionFactor = evictionFactor;
-        this.frequenciesList = new TreeMap<>();
-        this.innerFrequencyMap = new HashMap<>();
+        helper = new LFUCacheHelper<>(evictionFactor);
     }
 
     @Override
@@ -39,30 +40,17 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
             if (isCacheMaxSizeReached()) {
                 evictedItems = doEviction();
             }
-            rememberFrequency(0, key);
+            helper.rememberFrequency(0, key);
         }
         getInnerMap().put(key, value);
         return evictedItems;
-    }
-
-    private void rememberFrequency(Integer frequency, KeyType key) {
-        Set<KeyType> keys = frequenciesList.get(frequency);
-        if (keys == null) {
-            keys = new HashSet<>(Collections.singletonList(key));
-            frequenciesList.put(frequency, keys);
-        } else {
-            keys.add(key);
-        }
-        innerFrequencyMap.put(key, frequency);
     }
 
     @Override
     public ValueType get(KeyType key) {
         final ValueType value = super.get(key);
         if (value != null) {
-            final Integer frequency = innerFrequencyMap.get(key);
-            removeKeyFromFrequenciesList(key, frequency);
-            rememberFrequency(frequency + 1, key);
+            helper.updateFrequency(key);
         }
         return value;
     }
@@ -71,57 +59,36 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
     public ValueType remove(KeyType key) {
         final ValueType value = super.remove(key);
         if (value != null) {
-            final Integer frequency = innerFrequencyMap.remove(key);
-            removeKeyFromFrequenciesList(key, frequency);
+            helper.removeKeyFromFrequenciesList(key);
         }
         return value;
-    }
-
-    private void removeKeyFromFrequenciesList(KeyType key, Integer frequency) {
-        final Set<KeyType> keys = frequenciesList.get(frequency);
-        if (keys.size() > 1) {
-            keys.remove(key);
-        } else {
-            frequenciesList.remove(frequency);
-        }
     }
 
     @Override
     public void clear() {
         super.clear();
-        frequenciesList.clear();
-        innerFrequencyMap.clear();
+        helper.clear();
     }
 
     public int frequencyOf(KeyType key) throws NoSuchElementException {
-        if (containsKey(key)) {
-            return innerFrequencyMap.get(key);
-        }
-        throw new NoSuchElementException("Key " + key + " not found in the cache");
+        return helper.frequencyOf(key);
     }
 
     private List<Map.Entry<KeyType, ValueType>> doEviction() {
         // This method will be called only when cache is full
         final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();
-        final float target = getCacheMaxSize() * evictionFactor;
+        final float target = getCacheMaxSize() * helper.getEvictionFactor();
         int currentlyDeleted = 0;
         while (currentlyDeleted < target) {
-            final Integer lowestFrequency = getLowestFrequency();
-            final Set<KeyType> keys = frequenciesList.get(lowestFrequency);
-            Iterator<KeyType> it = keys.iterator();
+            Iterator<KeyType> it = helper.iteratorForLowestFrequency();
             while (it.hasNext() && currentlyDeleted++ < target) {
                 final KeyType key = it.next();
                 final ValueType value = super.remove(key);
-                innerFrequencyMap.remove(key);
+                helper.removeKeyOnEviction(key);
                 it.remove();
                 evictedItems.add(new AbstractMap.SimpleEntry<>(key, value));
             }
         }
         return evictedItems;
-    }
-
-    private Integer getLowestFrequency() {
-        Optional<Integer> minFrequency = frequenciesList.keySet().stream().min(Integer::compareTo);
-        return minFrequency.orElse(0);
     }
 }
