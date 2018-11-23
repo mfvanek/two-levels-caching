@@ -17,20 +17,19 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serializable>  {
+public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serializable> {
 
-    private static final int DEFAULT_MAX_SIZE = 10;
-    private static final float DEFAULT_EVICTION_FACTOR = 0.2f;
+    public static final int DEFAULT_MAX_SIZE = 10;
+    public static final float DEFAULT_EVICTION_FACTOR = 0.2f;
 
     private final Class<ValueType> type;
     private int maxCacheSize = DEFAULT_MAX_SIZE;
     private float evictionFactor = DEFAULT_EVICTION_FACTOR;
     private CacheType cacheType = CacheType.SIMPLE;
-    private Path baseDirectory;
+    private Path baseDirectory = Paths.get(".").resolve("/jcache/");
 
     private CacheBuilder(Class<ValueType> type) {
         this.type = type;
-        this.baseDirectory = Paths.get(".").resolve("/jcache/");
     }
 
     public Cache<KeyType, ValueType> build() throws Exception {
