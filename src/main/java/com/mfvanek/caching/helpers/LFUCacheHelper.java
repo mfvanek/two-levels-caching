@@ -5,6 +5,8 @@
 
 package com.mfvanek.caching.helpers;
 
+import com.mfvanek.caching.interfaces.Countable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,7 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class LFUCacheHelper<KeyType> {
+public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
 
     private final float evictionFactor;
     private final Map<Integer, Set<KeyType>> frequenciesList;
@@ -44,6 +46,7 @@ public class LFUCacheHelper<KeyType> {
         return minFrequency.orElse(0);
     }
 
+    @Override
     public int frequencyOf(KeyType key) throws NoSuchElementException {
         if (innerFrequencyMap.containsKey(key)) {
             return innerFrequencyMap.get(key);

@@ -36,7 +36,7 @@ class Sample {
         cache.put(snowden);
     }
 
-    private static void testCache() {
+    private static void testCache() throws Exception {
         System.out.println("=== Testing cache ===");
         final Movie snowden = cache.get(Movies.SNOWDEN_IMDB);
         System.out.println("From cache = " + snowden);

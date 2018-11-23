@@ -7,133 +7,28 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.builders.CacheBuilder;
 import com.mfvanek.caching.enums.CacheType;
-import com.mfvanek.caching.helpers.BaseCacheTest;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
-import com.mfvanek.caching.models.Movies;
-import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-class LFUCacheTest extends BaseCacheTest {
-
-    @Test
-    void put() throws Exception {
-        final Cache<String, Movie> cache = createCache(1.0f);
-        final LFUCache<String, Movie> lfuCache = (LFUCache<String, Movie>) cache;
-
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
-
-        evictedItems = cache.put(AQUAMAN);
-        assertEquals(2, cache.size());
-        assertEquals(0, evictedItems.size());
-        assertEquals(0, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, lfuCache.frequencyOf(Movies.AQUAMAN_IMDB));
-
-        evictedItems = cache.put(INCEPTION);
-        assertEquals(1, cache.size());
-        assertEquals(2, evictedItems.size());
-        assertIterableEquals(Arrays.asList(SNOWDEN, AQUAMAN), evictedItems);
-        assertTrue(cache.containsKey(Movies.INCEPTION_IMDB));
-        assertEquals(0, lfuCache.frequencyOf(Movies.INCEPTION_IMDB));
-    }
-
-    @Test
-    void putTheSameValue() throws Exception {
-        final Cache<String, Movie> cache = createCache(1.0f);
-        final LFUCache<String, Movie> lfuCache = (LFUCache<String, Movie>) cache;
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
-        assertEquals(0, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-
-        evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
-        assertEquals(0, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-    }
-
-    @Test
-    void get() throws Exception {
-        final Cache<String, Movie> cache = createCache();
-        final LFUCache<String, Movie> lfuCache = (LFUCache<String, Movie>) cache;
-        cache.put(SNOWDEN);
-        cache.put(INCEPTION);
-        assertEquals(2, cache.size());
-        assertEquals(0, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, lfuCache.frequencyOf(Movies.INCEPTION_IMDB));
-
-        Movie value = cache.get(Movies.SNOWDEN_IMDB);
-        assertEquals(SNOWDEN, value);
-        assertEquals(1, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, lfuCache.frequencyOf(Movies.INCEPTION_IMDB));
-
-        value = cache.get(Movies.INCEPTION_IMDB);
-        assertEquals(INCEPTION, value);
-        assertEquals(1, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(1, lfuCache.frequencyOf(Movies.INCEPTION_IMDB));
-
-        cache.get(Movies.SNOWDEN_IMDB);
-        assertEquals(2, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(1, lfuCache.frequencyOf(Movies.INCEPTION_IMDB));
-
-        List<Movie> evictedItems = cache.put(AQUAMAN);
-        assertEquals(2, cache.size());
-        assertEquals(2, lfuCache.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, lfuCache.frequencyOf(Movies.AQUAMAN_IMDB));
-        assertEquals(1, evictedItems.size());
-        assertEquals(INCEPTION, evictedItems.get(0));
-    }
-
-    @Test
-    void remove() throws Exception {
-        // TODO
-    }
-
-    @Test
-    void removeNotExisting() throws Exception {
-        final Cache<String, Movie> cache = createCache();
-        cache.put(SNOWDEN);
-        cache.put(AQUAMAN);
-        assertEquals(MAX_SIZE, cache.size());
-
-        Movie deleted = cache.remove("not existing key");
-        assertEquals(MAX_SIZE, cache.size());
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertTrue(cache.containsKey(Movies.AQUAMAN_IMDB));
-        assertNull(deleted);
-    }
-
-    @Test
-    void clear() throws Exception {
-        final Cache<String, Movie> cache = createCache();
-        cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-
-        Movie deletedItem = cache.remove("");
-        assertNull(deletedItem);
-        assertEquals(1, cache.size());
-
-        deletedItem = cache.remove(Movies.SNOWDEN_IMDB);
-        assertEquals(SNOWDEN, deletedItem);
-        assertEquals(0, cache.size());
-    }
+class LFUCacheTest extends BaseLFUCacheTest {
 
     @Override
     protected Cache<String, Movie> createCache() throws Exception {
         return createCache(0.1f);
     }
 
-    private static Cache<String, Movie> createCache(float evictionFactor) throws Exception {
+    @Override
+    protected Cache<String, Movie> createCache(int maxSize) throws Exception {
+        return createCache(maxSize, 0.1f);
+    }
+
+    @Override
+    protected Cache<String, Movie> createCache(float evictionFactor) throws Exception {
+        return createCache(MAX_SIZE, evictionFactor);
+    }
+
+    private static Cache<String, Movie> createCache(int maxSize, float evictionFactor) throws Exception {
         final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance(Movie.class);
-        return builder.setCacheType(CacheType.LFU).setMaxSize(MAX_SIZE).setEvictionFactor(evictionFactor).build();
+        return builder.setCacheType(CacheType.LFU).setMaxSize(maxSize).setEvictionFactor(evictionFactor).build();
     }
 }

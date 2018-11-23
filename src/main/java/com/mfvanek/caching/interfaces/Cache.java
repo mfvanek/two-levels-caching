@@ -25,7 +25,7 @@ public interface Cache<KeyType, ValueType extends Cacheable<KeyType>> {
      */
     List<ValueType> put(ValueType value) throws Exception;
 
-    ValueType get(KeyType key);
+    ValueType get(KeyType key) throws Exception;
 
     boolean containsKey(KeyType key);
 

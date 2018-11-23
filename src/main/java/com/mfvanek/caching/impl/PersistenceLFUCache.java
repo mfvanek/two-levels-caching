@@ -7,7 +7,7 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.helpers.LFUCacheHelper;
 import com.mfvanek.caching.interfaces.Cacheable;
-import org.apache.commons.lang3.NotImplementedException;
+import com.mfvanek.caching.interfaces.Countable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,7 +31,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> & Serializable>
-        extends AbstractCache<KeyType, ValueType> {
+        extends AbstractCache<KeyType, ValueType> implements Countable<KeyType> {
 
     private static final String EXTENSION = ".ser";
 
@@ -59,20 +59,27 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value)
             throws IOException, ClassNotFoundException {
         List<Map.Entry<KeyType, ValueType>> evictedItems = Collections.emptyList();
-        final Path cacheFilePath = innerMap.get(key);
+        Path cacheFilePath = innerMap.get(key);
         if (cacheFilePath == null) {
+            cacheFilePath = generateSerializedFilePath();
             if (isCacheMaxSizeReached()) {
                 evictedItems = doEviction();
             }
             helper.rememberFrequency(0, key);
         }
-        innerMap.put(key, serialize(value));
+        innerMap.put(key, serialize(value, cacheFilePath));
         return evictedItems;
     }
 
     @Override
-    public ValueType get(KeyType key) {
-        throw new NotImplementedException(""); // TODO
+    public ValueType get(KeyType key) throws IOException, ClassNotFoundException {
+        ValueType value = null;
+        final Path cacheFilePath = innerMap.get(key);
+        if (cacheFilePath != null) {
+            value = deserialize(cacheFilePath);
+            helper.updateFrequency(key);
+        }
+        return value;
     }
 
     @Override
@@ -82,8 +89,11 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
 
     @Override
     public ValueType remove(KeyType key) throws IOException, ClassNotFoundException {
-        helper.removeKeyFromFrequenciesList(key);
-        return doRemove(key);
+        final ValueType deletedValue = doRemove(key);
+        if (deletedValue != null) {
+            helper.removeKeyFromFrequenciesList(key);
+        }
+        return deletedValue;
     }
 
     private ValueType doRemove(KeyType key) throws IOException, ClassNotFoundException {
@@ -121,8 +131,11 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         }
     }
 
-    private Path serialize(ValueType value) throws IOException {
-        final Path cacheFilePath = baseDirectory.resolve(UUID.randomUUID() + EXTENSION);
+    private Path generateSerializedFilePath() {
+        return baseDirectory.resolve(UUID.randomUUID() + EXTENSION);
+    }
+
+    private Path serialize(ValueType value, final Path cacheFilePath) throws IOException {
         try (FileChannel channel = FileChannel.open(cacheFilePath, StandardOpenOption.WRITE, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING);
              ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream ous = new ObjectOutputStream(bos)) {
@@ -132,7 +145,8 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         return cacheFilePath;
     }
 
-    int frequencyOf(KeyType key) throws NoSuchElementException {
+    @Override
+    public int frequencyOf(KeyType key) throws NoSuchElementException {
         return helper.frequencyOf(key);
     }
 

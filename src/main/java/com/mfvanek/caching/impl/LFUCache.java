@@ -7,6 +7,7 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.helpers.LFUCacheHelper;
 import com.mfvanek.caching.interfaces.Cacheable;
+import com.mfvanek.caching.interfaces.Countable;
 
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -24,7 +25,7 @@ import java.util.NoSuchElementException;
  * @param <ValueType>
  */
 public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
-        extends AbstractMapCache<KeyType, ValueType> {
+        extends AbstractMapCache<KeyType, ValueType> implements Countable<KeyType> {
 
     private final LFUCacheHelper<KeyType> helper;
 
@@ -71,7 +72,8 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
         helper.clear();
     }
 
-    int frequencyOf(KeyType key) throws NoSuchElementException {
+    @Override
+    public int frequencyOf(KeyType key) throws NoSuchElementException {
         return helper.frequencyOf(key);
     }
 
