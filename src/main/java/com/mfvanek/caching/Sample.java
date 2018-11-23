@@ -18,7 +18,7 @@ class Sample {
         try {
             System.out.println("This is a caching demo app");
 
-            final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance();
+            final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance(Movie.class);
             cache = builder.setMaxSize(3).build();
 
             fillCache();
@@ -30,7 +30,7 @@ class Sample {
         }
     }
 
-    private static void fillCache() {
+    private static void fillCache() throws Exception {
         final Movie snowden = Movies.getSnowden();
         cache.put(snowden.getIdentifier(), snowden);
         cache.put(snowden);

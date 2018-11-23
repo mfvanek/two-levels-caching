@@ -8,29 +8,41 @@ package com.mfvanek.caching.builders;
 import com.mfvanek.caching.enums.CacheType;
 import com.mfvanek.caching.exceptions.InvalidCacheTypeException;
 import com.mfvanek.caching.impl.LFUCache;
+import com.mfvanek.caching.impl.PersistenceLFUCache;
 import com.mfvanek.caching.impl.SimpleInMemoryCache;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.interfaces.Cacheable;
 
-public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType>>  {
+import java.io.Serializable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-    public static final int DEFAULT_MAX_SIZE = 10;
-    public static final float DEFAULT_EVICTION_FACTOR = 0.2f;
+public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serializable>  {
 
+    private static final int DEFAULT_MAX_SIZE = 10;
+    private static final float DEFAULT_EVICTION_FACTOR = 0.2f;
+
+    private final Class<ValueType> type;
     private int maxCacheSize = DEFAULT_MAX_SIZE;
     private float evictionFactor = DEFAULT_EVICTION_FACTOR;
     private CacheType cacheType = CacheType.SIMPLE;
+    private Path baseDirectory;
 
-    private CacheBuilder() {
+    private CacheBuilder(Class<ValueType> type) {
+        this.type = type;
+        this.baseDirectory = Paths.get(".").resolve("/jcache/");
     }
 
-    public Cache<KeyType, ValueType> build() throws InvalidCacheTypeException {
+    public Cache<KeyType, ValueType> build() throws Exception {
         switch (cacheType) {
             case SIMPLE:
-                return new SimpleInMemoryCache<>(maxCacheSize);
+                return new SimpleInMemoryCache<>(type, maxCacheSize);
 
             case LFU:
-                return new LFUCache<>(maxCacheSize, evictionFactor);
+                return new LFUCache<>(type, maxCacheSize, evictionFactor);
+
+            case PERSISTENCE_LFU:
+                return new PersistenceLFUCache<>(type, maxCacheSize, evictionFactor, baseDirectory);
         }
         throw new InvalidCacheTypeException(cacheType);
     }
@@ -50,7 +62,12 @@ public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType>>  {
         return this;
     }
 
-    public static <KeyType, ValueType extends Cacheable<KeyType>> CacheBuilder<KeyType, ValueType> getInstance() {
-        return new CacheBuilder<>();
+    public CacheBuilder<KeyType, ValueType> setBaseDirectory(Path baseDirectory) {
+        this.baseDirectory = baseDirectory;
+        return this;
+    }
+
+    public static <KeyType, ValueType extends Cacheable<KeyType>& Serializable> CacheBuilder<KeyType, ValueType> getInstance(Class<ValueType> type) {
+        return new CacheBuilder<>(type);
     }
 }

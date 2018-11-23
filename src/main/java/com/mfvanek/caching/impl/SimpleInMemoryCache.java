@@ -17,10 +17,11 @@ import java.util.Map;
  * @param <KeyType>
  * @param <ValueType>
  */
-public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractMapCache<KeyType, ValueType> {
+public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyType>>
+        extends AbstractMapCache<KeyType, ValueType> {
 
-    public SimpleInMemoryCache(int maxCacheSize) {
-        super(maxCacheSize, new LinkedHashMap<KeyType, ValueType>(maxCacheSize) {
+    public SimpleInMemoryCache(Class<ValueType> type, int maxCacheSize) {
+        super(type, maxCacheSize, new LinkedHashMap<KeyType, ValueType>(maxCacheSize) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<KeyType, ValueType> eldest) {
                 return size() > maxCacheSize;

@@ -8,5 +8,6 @@ package com.mfvanek.caching.enums;
 public enum CacheType {
 
     SIMPLE,
-    LFU;
+    LFU,
+    PERSISTENCE_LFU
 }

@@ -23,12 +23,13 @@ import java.util.NoSuchElementException;
  * @param <KeyType>
  * @param <ValueType>
  */
-public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractMapCache<KeyType, ValueType> {
+public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
+        extends AbstractMapCache<KeyType, ValueType> {
 
     private final LFUCacheHelper<KeyType> helper;
 
-    public LFUCache(int maxCacheSize, float evictionFactor) {
-        super(maxCacheSize, new HashMap<>(maxCacheSize));
+    public LFUCache(Class<ValueType> type, int maxCacheSize, float evictionFactor) {
+        super(type, maxCacheSize, new HashMap<>(maxCacheSize));
         helper = new LFUCacheHelper<>(evictionFactor);
     }
 
@@ -70,7 +71,7 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>> extends Abs
         helper.clear();
     }
 
-    public int frequencyOf(KeyType key) throws NoSuchElementException {
+    int frequencyOf(KeyType key) throws NoSuchElementException {
         return helper.frequencyOf(key);
     }
 

@@ -7,7 +7,6 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.builders.CacheBuilder;
 import com.mfvanek.caching.enums.CacheType;
-import com.mfvanek.caching.exceptions.InvalidCacheTypeException;
 import com.mfvanek.caching.helpers.BaseCacheTest;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
@@ -26,7 +25,7 @@ class LFUCacheTest extends BaseCacheTest {
 
     @Test
     void put() throws Exception {
-        final Cache<String, Movie> cache = createCache(2, 1.0f);
+        final Cache<String, Movie> cache = createCache(1.0f);
         final LFUCache<String, Movie> lfuCache = (LFUCache<String, Movie>) cache;
 
         List<Movie> evictedItems = cache.put(SNOWDEN);
@@ -49,7 +48,7 @@ class LFUCacheTest extends BaseCacheTest {
 
     @Test
     void putTheSameValue() throws Exception {
-        final Cache<String, Movie> cache = createCache(2, 1.0f);
+        final Cache<String, Movie> cache = createCache(1.0f);
         final LFUCache<String, Movie> lfuCache = (LFUCache<String, Movie>) cache;
         List<Movie> evictedItems = cache.put(SNOWDEN);
         assertEquals(1, cache.size());
@@ -100,6 +99,20 @@ class LFUCacheTest extends BaseCacheTest {
     }
 
     @Test
+    void removeNotExisting() throws Exception {
+        final Cache<String, Movie> cache = createCache();
+        cache.put(SNOWDEN);
+        cache.put(AQUAMAN);
+        assertEquals(MAX_SIZE, cache.size());
+
+        Movie deleted = cache.remove("not existing key");
+        assertEquals(MAX_SIZE, cache.size());
+        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
+        assertTrue(cache.containsKey(Movies.AQUAMAN_IMDB));
+        assertNull(deleted);
+    }
+
+    @Test
     void clear() throws Exception {
         final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
@@ -114,12 +127,13 @@ class LFUCacheTest extends BaseCacheTest {
         assertEquals(0, cache.size());
     }
 
-    private static Cache<String, Movie> createCache() throws InvalidCacheTypeException {
-        return createCache(MAX_SIZE, 0.1f);
+    @Override
+    protected Cache<String, Movie> createCache() throws Exception {
+        return createCache(0.1f);
     }
 
-    private static Cache<String, Movie> createCache(int maxSize, float evictionFactor) throws InvalidCacheTypeException {
-        final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance();
-        return builder.setCacheType(CacheType.LFU).setMaxSize(maxSize).setEvictionFactor(evictionFactor).build();
+    private static Cache<String, Movie> createCache(float evictionFactor) throws Exception {
+        final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance(Movie.class);
+        return builder.setCacheType(CacheType.LFU).setMaxSize(MAX_SIZE).setEvictionFactor(evictionFactor).build();
     }
 }

@@ -9,7 +9,11 @@ import com.mfvanek.caching.interfaces.Cacheable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public final class Movie implements Cacheable<String> {
+import java.io.Serializable;
+
+public final class Movie implements Cacheable<String>, Serializable {
+
+    private static final long serialVersionUID = 7524472395622976117L;
 
     private final String title;
     private final int year;
@@ -50,7 +54,6 @@ public final class Movie implements Cacheable<String> {
 
         Movie rhs = (Movie) obj;
         return new EqualsBuilder()
-                .appendSuper(super.equals(obj))
                 .append(title, rhs.title)
                 .append(year, rhs.year)
                 .append(imdb, rhs.imdb)

@@ -12,11 +12,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-abstract class AbstractCache<KeyType, ValueType extends Cacheable<KeyType>> implements Cache<KeyType, ValueType> {
+/**
+ * Abstract base class for implementing cache
+ * @param <KeyType>
+ * @param <ValueType>
+ */
+abstract class AbstractCache<KeyType, ValueType extends Cacheable<KeyType>>
+        implements Cache<KeyType, ValueType> {
 
+    private final Class<ValueType> type;
     private final int maxCacheSize;
 
-    protected AbstractCache(int maxCacheSize) {
+    protected AbstractCache(Class<ValueType> type, int maxCacheSize) {
+        this.type = type;
         this.maxCacheSize = maxCacheSize;
     }
 
@@ -24,9 +32,13 @@ abstract class AbstractCache<KeyType, ValueType extends Cacheable<KeyType>> impl
         return maxCacheSize;
     }
 
+    protected Class<ValueType> getType() {
+        return type;
+    }
+
     @Override
-    public List<ValueType> put(ValueType value) {
-        return this.put(value.getIdentifier(), value).
-                stream().map(Map.Entry::getValue).collect(Collectors.toList());
+    public List<ValueType> put(ValueType value)  throws Exception {
+        final List<Map.Entry<KeyType, ValueType>> evictedItems =  this.put(value.getIdentifier(), value);
+        return evictedItems.stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 }

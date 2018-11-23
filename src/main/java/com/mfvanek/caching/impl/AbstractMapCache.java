@@ -9,12 +9,13 @@ import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.util.Map;
 
-abstract class AbstractMapCache<KeyType, ValueType extends Cacheable<KeyType>> extends AbstractCache<KeyType, ValueType> {
+abstract class AbstractMapCache<KeyType, ValueType extends Cacheable<KeyType>>
+        extends AbstractCache<KeyType, ValueType> {
 
     private final Map<KeyType, ValueType> innerMap;
 
-    protected AbstractMapCache(int maxCacheSize, Map<KeyType, ValueType> innerMap) {
-        super(maxCacheSize);
+    protected AbstractMapCache(Class<ValueType> type, int maxCacheSize, Map<KeyType, ValueType> innerMap) {
+        super(type, maxCacheSize);
         this.innerMap = innerMap;
     }
 
