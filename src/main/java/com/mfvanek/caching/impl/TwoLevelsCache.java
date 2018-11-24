@@ -28,8 +28,16 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
 
     @Override
     public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) throws Exception {
+        // If item is being already in the cache and kept on the second level,
+        // we will not move it up, just update the value.
+        if (secondLevel.containsKey(key)) {
+            return secondLevel.put(key, value);
+        }
+
+        // The item that is not present in the cache or is held on the first level, will be proceeded as usual.
         final List<Map.Entry<KeyType, ValueType>> firstLevelEvictedItems = firstLevel.put(key, value);
         if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
+            // TODO implement Cache::putAll method
             final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();
             for (Map.Entry<KeyType, ValueType> entry : firstLevelEvictedItems) {
                 final List<Map.Entry<KeyType, ValueType>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());
@@ -48,6 +56,7 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
 
     @Override
     public ValueType get(KeyType key) throws Exception {
+        // TODO we need to refresh the cache on getting values
         ValueType foundItem = firstLevel.get(key);
         if (foundItem == null) {
             foundItem = secondLevel.get(key);

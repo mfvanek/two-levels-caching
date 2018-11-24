@@ -6,6 +6,7 @@
 package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.builders.CacheBuilder;
+import com.mfvanek.caching.helpers.DirectoryUtils;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
@@ -13,11 +14,9 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,17 +44,8 @@ abstract class BaseCacheTest {
 
     @AfterAll
     static void tearDown() throws IOException {
-        deleteDirectory(tempDir);
-        deleteDirectory(CacheBuilder.getDefaultBaseDirectory());
-    }
-
-    private static void deleteDirectory(Path directoryToDelete) throws IOException {
-        if (Files.exists(directoryToDelete) && Files.isDirectory(directoryToDelete)) {
-            Files.walk(directoryToDelete)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
-        }
+        DirectoryUtils.deleteDirectory(tempDir);
+        DirectoryUtils.deleteDirectory(CacheBuilder.getDefaultBaseDirectory());
     }
 
     @Test

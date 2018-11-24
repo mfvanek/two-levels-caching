@@ -71,6 +71,6 @@ public final class Movie implements Cacheable<String>, Serializable {
 
     @Override
     public String toString() {
-        return String.format("Movie:{title:%s, year:%s, imdb:%s}", getTitle(), getYear(), getIdentifier());
+        return String.format("Movie:{title:'%s', year:%s, imdb:'%s'}", getTitle(), getYear(), getIdentifier());
     }
 }
