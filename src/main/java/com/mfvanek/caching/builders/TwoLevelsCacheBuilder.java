@@ -12,7 +12,6 @@ import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class TwoLevelsCacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serializable> {
 
@@ -21,7 +20,7 @@ public class TwoLevelsCacheBuilder<KeyType, ValueType extends Cacheable<KeyType>
     private int secondLevelMaxSize = CacheBuilder.DEFAULT_MAX_SIZE;
     private float firstLevelEvictionFactor = CacheBuilder.DEFAULT_EVICTION_FACTOR;
     private float secondLevelEvictionFactor = CacheBuilder.DEFAULT_EVICTION_FACTOR;
-    private Path baseDirectory = Paths.get(".").resolve("/jcache/");
+    private Path baseDirectory = CacheBuilder.getDefaultBaseDirectory();
 
     private TwoLevelsCacheBuilder(Class<ValueType> type) {
         this.type = type;

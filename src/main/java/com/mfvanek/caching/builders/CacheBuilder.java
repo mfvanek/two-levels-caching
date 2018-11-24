@@ -26,7 +26,7 @@ public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serial
     private int maxCacheSize = DEFAULT_MAX_SIZE;
     private float evictionFactor = DEFAULT_EVICTION_FACTOR;
     private CacheType cacheType = CacheType.SIMPLE;
-    private Path baseDirectory = Paths.get(".").resolve("/jcache/");
+    private Path baseDirectory = getDefaultBaseDirectory();
 
     private CacheBuilder(Class<ValueType> type) {
         this.type = type;
@@ -64,6 +64,10 @@ public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serial
     public CacheBuilder<KeyType, ValueType> setBaseDirectory(Path baseDirectory) {
         this.baseDirectory = baseDirectory;
         return this;
+    }
+
+    public static Path getDefaultBaseDirectory() {
+        return Paths.get(".").resolve("/jcache/").toAbsolutePath();
     }
 
     public static <KeyType, ValueType extends Cacheable<KeyType>& Serializable> CacheBuilder<KeyType, ValueType> getInstance(Class<ValueType> type) {

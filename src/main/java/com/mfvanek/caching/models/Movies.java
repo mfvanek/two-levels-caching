@@ -21,7 +21,17 @@ public class Movies {
         return new Movie("Inception", 2010, INCEPTION_IMDB);
     }
 
+    public static Movie getInterstellar() {
+        return new Movie("Interstellar", 2016, INTERSTELLAR_IMDB);
+    }
+
+    public static Movie getArrival() {
+        return new Movie("Arrival", 2016, ARRIVAL_IMDB);
+    }
+
     public static final String SNOWDEN_IMDB = "tt3774114";
     public static final String AQUAMAN_IMDB = "tt1477834";
     public static final String INCEPTION_IMDB = "tt1375666";
+    public static final String INTERSTELLAR_IMDB = "tt0816692";
+    public static final String ARRIVAL_IMDB = "tt2543164";
 }

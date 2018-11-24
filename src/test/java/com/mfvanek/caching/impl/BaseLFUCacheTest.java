@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class BaseLFUCacheTest extends BaseCacheTest {
 
-    private static Countable<String> asCountable(final Cache<String, Movie> cache) throws ClassCastException {
+    protected static Countable<String> asCountable(final Cache<String, Movie> cache) throws ClassCastException {
         if (cache instanceof Countable) {
             //noinspection unchecked
             return (Countable<String>) cache;

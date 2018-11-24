@@ -5,11 +5,19 @@
 
 package com.mfvanek.caching.impl;
 
+import com.mfvanek.caching.builders.CacheBuilder;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -21,13 +29,37 @@ abstract class BaseCacheTest {
     protected static final Movie SNOWDEN = Movies.getSnowden();
     protected static final Movie AQUAMAN = Movies.getAquaman();
     protected static final Movie INCEPTION = Movies.getInception();
+    protected static final Movie INTERSTELLAR = Movies.getInterstellar();
+    protected static final Movie ARRIVAL = Movies.getArrival();
 
     protected abstract Cache<String, Movie> createCache() throws Exception;
 
     protected abstract Cache<String, Movie> createCache(int maxSize) throws Exception;
 
+    protected static Path tempDir;
+
+    @BeforeAll
+    static void setUp() throws IOException {
+        tempDir = Files.createTempDirectory("jcache");
+    }
+
+    @AfterAll
+    static void tearDown() throws IOException {
+        deleteDirectory(tempDir);
+        deleteDirectory(CacheBuilder.getDefaultBaseDirectory());
+    }
+
+    private static void deleteDirectory(Path directoryToDelete) throws IOException {
+        if (Files.exists(directoryToDelete) && Files.isDirectory(directoryToDelete)) {
+            Files.walk(directoryToDelete)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+    }
+
     @Test
-    final void size() throws Exception {
+    void size() throws Exception {
         final Cache<String, Movie> cache = createCache();
         assertEquals(0, cache.size());
 
