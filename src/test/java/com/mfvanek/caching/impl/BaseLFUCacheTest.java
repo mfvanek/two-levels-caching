@@ -14,8 +14,11 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class BaseLFUCacheTest extends BaseCacheTest {
@@ -68,6 +71,29 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
         assertIterableEquals(Arrays.asList(SNOWDEN, AQUAMAN), evictedItems);
         assertTrue(cache.containsKey(Movies.INCEPTION_IMDB));
         assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
+    }
+
+    @Test
+    final void evictionWithDifferentFrequencies() throws Exception {
+        final Cache<String, Movie> cache = createCache(1.0f);
+        final Countable<String> countable = asCountable(cache);
+
+        List<Movie> evictedItems = cache.put(SNOWDEN);
+        assertEquals(1, cache.size());
+        assertEquals(0, evictedItems.size());
+        assertNotNull(cache.get(Movies.SNOWDEN_IMDB));
+
+        evictedItems = cache.put(AQUAMAN);
+        assertEquals(2, cache.size());
+        assertEquals(0, evictedItems.size());
+
+        assertEquals(1, countable.frequencyOf(Movies.SNOWDEN_IMDB));
+        assertEquals(0, countable.frequencyOf(Movies.AQUAMAN_IMDB));
+
+        evictedItems = cache.put(INTERSTELLAR);
+        assertEquals(1, cache.size());
+        assertEquals(2, evictedItems.size());
+        assertThat(evictedItems, containsInAnyOrder(SNOWDEN, AQUAMAN));
     }
 
     @Test

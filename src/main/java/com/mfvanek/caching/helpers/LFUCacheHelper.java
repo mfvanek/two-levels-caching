@@ -6,6 +6,7 @@
 package com.mfvanek.caching.helpers;
 
 import com.mfvanek.caching.interfaces.Countable;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +43,6 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
     }
 
     private Integer getLowestFrequency() {
-        // TODO Error!!!!
         Optional<Integer> minFrequency = frequenciesList.keySet().stream().min(Integer::compareTo);
         return minFrequency.orElse(0);
     }
@@ -96,6 +96,9 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
     }
 
     public Iterator<KeyType> iteratorForLowestFrequency() {
+        // We need to remove entries with empty values
+        frequenciesList.entrySet().removeIf(e -> CollectionUtils.isEmpty(e.getValue()));
+
         final Integer lowestFrequency = getLowestFrequency();
         final Set<KeyType> keys = frequenciesList.get(lowestFrequency);
         return keys.iterator();
