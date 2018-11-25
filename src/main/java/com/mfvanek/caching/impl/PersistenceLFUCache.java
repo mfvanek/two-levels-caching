@@ -7,7 +7,6 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.helpers.LFUCacheHelper;
 import com.mfvanek.caching.interfaces.Cacheable;
-import com.mfvanek.caching.interfaces.Countable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,7 +30,7 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> & Serializable>
-        extends AbstractCache<KeyType, ValueType> implements Countable<KeyType> {
+        extends AbstractCache<KeyType, ValueType> {
 
     private static final String EXTENSION = ".ser";
 
@@ -89,11 +88,17 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
 
     @Override
     public ValueType remove(KeyType key) throws IOException, ClassNotFoundException {
+        return innerRemove(key).getValue();
+    }
+
+    @Override
+    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) throws IOException, ClassNotFoundException {
+        Integer frequency = INVALID_FREQUENCY;
         final ValueType deletedValue = doRemove(key);
         if (deletedValue != null) {
-            helper.removeKeyFromFrequenciesList(key);
+            frequency = helper.removeKeyFromFrequenciesList(key);
         }
-        return deletedValue;
+        return new AbstractMap.SimpleEntry<>(frequency, deletedValue);
     }
 
     private ValueType doRemove(KeyType key) throws IOException, ClassNotFoundException {
@@ -136,7 +141,8 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     private Path serialize(ValueType value, final Path cacheFilePath) throws IOException {
-        try (FileChannel channel = FileChannel.open(cacheFilePath, StandardOpenOption.WRITE, StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING);
+        try (FileChannel channel = FileChannel.open(cacheFilePath, StandardOpenOption.WRITE,
+                StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING);
              ByteArrayOutputStream bos = new ByteArrayOutputStream();
              ObjectOutputStream ous = new ObjectOutputStream(bos)) {
             ous.writeObject(value);

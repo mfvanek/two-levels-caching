@@ -64,9 +64,10 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
         innerFrequencyMap.remove(key);
     }
 
-    public void removeKeyFromFrequenciesList(KeyType key) {
+    public Integer removeKeyFromFrequenciesList(KeyType key) {
         final Integer frequency = innerFrequencyMap.remove(key);
         removeKeyFromFrequenciesList(key, frequency);
+        return frequency;
     }
 
     private void removeKeyFromFrequenciesList(KeyType key, Integer frequency) {

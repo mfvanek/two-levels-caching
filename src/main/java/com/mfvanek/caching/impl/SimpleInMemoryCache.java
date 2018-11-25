@@ -7,6 +7,7 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.interfaces.Cacheable;
 
+import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,5 +35,15 @@ public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyT
         getInnerMap().put(key, value);
         // In this case we always return an empty list because we don't control eviction from the cache
         return Collections.emptyList();
+    }
+
+    @Override
+    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) {
+        return new AbstractMap.SimpleEntry<>(INVALID_FREQUENCY, remove(key));
+    }
+
+    @Override
+    public int frequencyOf(KeyType key) {
+        return INVALID_FREQUENCY;
     }
 }

@@ -7,7 +7,6 @@ package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.helpers.LFUCacheHelper;
 import com.mfvanek.caching.interfaces.Cacheable;
-import com.mfvanek.caching.interfaces.Countable;
 
 import java.util.AbstractMap;
 import java.util.Collections;
@@ -25,7 +24,7 @@ import java.util.NoSuchElementException;
  * @param <ValueType>
  */
 public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
-        extends AbstractMapCache<KeyType, ValueType> implements Countable<KeyType> {
+        extends AbstractMapCache<KeyType, ValueType> {
 
     private final LFUCacheHelper<KeyType> helper;
 
@@ -59,11 +58,17 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
 
     @Override
     public ValueType remove(KeyType key) {
-        final ValueType value = super.remove(key);
-        if (value != null) {
-            helper.removeKeyFromFrequenciesList(key);
+        return innerRemove(key).getValue();
+    }
+
+    @Override
+    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) {
+        Integer frequency = INVALID_FREQUENCY;
+        final ValueType deletedValue = super.remove(key);
+        if (deletedValue != null) {
+            frequency = helper.removeKeyFromFrequenciesList(key);
         }
-        return value;
+        return new AbstractMap.SimpleEntry<>(frequency, deletedValue);
     }
 
     @Override

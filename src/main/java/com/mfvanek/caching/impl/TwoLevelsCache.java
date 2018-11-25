@@ -6,6 +6,7 @@
 package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.interfaces.Cache;
+import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Cacheable;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
@@ -22,35 +23,38 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
 
     private static final Logger logger = LoggerFactory.getLogger(TwoLevelsCache.class);
 
-    private final Cache<KeyType, ValueType> firstLevel;
-    private final Cache<KeyType, ValueType> secondLevel;
+    private final CacheExtended<KeyType, ValueType> firstLevel;
+    private final CacheExtended<KeyType, ValueType> secondLevel;
 
-    public TwoLevelsCache(Cache<KeyType, ValueType> firstLevel, Cache<KeyType, ValueType> secondLevel) {
+    public TwoLevelsCache(CacheExtended<KeyType, ValueType> firstLevel, CacheExtended<KeyType, ValueType> secondLevel) {
         this.firstLevel = firstLevel;
         this.secondLevel = secondLevel;
     }
 
     @Override
     public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) throws Exception {
+        List<Map.Entry<KeyType, ValueType>> evictedItems;
         // If the item is already in the cache and stored in the second level,
         // we will not move it up, just update the value.
         if (secondLevel.containsKey(key)) {
             logger.trace("The item is already in the cache and stored in the second level");
-            return secondLevel.put(key, value);
-        }
-
-        // The item that is not present in the cache or is held on the first level, will be proceeded as usual.
-        final List<Map.Entry<KeyType, ValueType>> firstLevelEvictedItems = firstLevel.put(key, value);
-        if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
-            // TODO implement Cache::putAll method
-            final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();
-            for (Map.Entry<KeyType, ValueType> entry : firstLevelEvictedItems) {
-                final List<Map.Entry<KeyType, ValueType>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());
-                evictedItems.addAll(secondLevelEvictedItems);
+            evictedItems = secondLevel.put(key, value);
+        } else {
+            // The item that is not present in the cache or is held on the first level, will be proceeded as usual.
+            final List<Map.Entry<KeyType, ValueType>> firstLevelEvictedItems = firstLevel.put(key, value);
+            if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
+                // TODO implement Cache::putAll method
+                evictedItems = new LinkedList<>();
+                for (Map.Entry<KeyType, ValueType> entry : firstLevelEvictedItems) {
+                    final List<Map.Entry<KeyType, ValueType>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());
+                    evictedItems.addAll(secondLevelEvictedItems);
+                }
+            } else {
+                evictedItems = firstLevelEvictedItems;
             }
-            return evictedItems;
         }
-        return firstLevelEvictedItems;
+        logger.debug("evictedItems = {}", evictedItems);
+        return evictedItems;
     }
 
     @Override
@@ -87,9 +91,20 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
 
     @Override
     public ValueType remove(KeyType key) throws Exception {
+        String level = null;
         ValueType deletedItem = firstLevel.remove(key);
         if (deletedItem == null) {
             deletedItem = secondLevel.remove(key);
+            if (deletedItem != null) {
+                level = "second";
+            }
+        } else {
+            level = "first";
+        }
+        if (level != null) {
+            logger.trace("The item has been successfully deleted from the {} level; {}", level, deletedItem);
+        } else {
+            logger.trace("No item has been deleted");
         }
         return deletedItem;
     }

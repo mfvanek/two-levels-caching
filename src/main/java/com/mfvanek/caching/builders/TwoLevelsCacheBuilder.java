@@ -8,6 +8,7 @@ package com.mfvanek.caching.builders;
 import com.mfvanek.caching.enums.CacheType;
 import com.mfvanek.caching.impl.TwoLevelsCache;
 import com.mfvanek.caching.interfaces.Cache;
+import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.io.Serializable;
@@ -28,9 +29,9 @@ public class TwoLevelsCacheBuilder<KeyType, ValueType extends Cacheable<KeyType>
 
     public Cache<KeyType, ValueType> build() throws Exception {
         final  CacheBuilder<KeyType, ValueType> builder = CacheBuilder.getInstance(type);
-        final Cache<KeyType, ValueType> firstLevel = builder.setCacheType(CacheType.LFU).
+        final CacheExtended<KeyType, ValueType> firstLevel = builder.setCacheType(CacheType.LFU).
                 setMaxSize(firstLevelMaxSize).setEvictionFactor(firstLevelEvictionFactor).build();
-        final Cache<KeyType, ValueType> secondLevel = builder.setCacheType(CacheType.PERSISTENCE_LFU).
+        final CacheExtended<KeyType, ValueType> secondLevel = builder.setCacheType(CacheType.PERSISTENCE_LFU).
                 setMaxSize(secondLevelMaxSize).setEvictionFactor(secondLevelEvictionFactor).
                 setBaseDirectory(baseDirectory).build();
         return new TwoLevelsCache<>(firstLevel, secondLevel);

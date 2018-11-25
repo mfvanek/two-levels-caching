@@ -5,7 +5,7 @@
 
 package com.mfvanek.caching.impl;
 
-import com.mfvanek.caching.interfaces.Cache;
+import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @param <ValueType>
  */
 abstract class AbstractCache<KeyType, ValueType extends Cacheable<KeyType>>
-        implements Cache<KeyType, ValueType> {
+        implements CacheExtended<KeyType, ValueType> {
 
     private final Class<ValueType> type;
     private final int maxCacheSize;

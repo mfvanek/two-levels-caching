@@ -10,7 +10,7 @@ import com.mfvanek.caching.exceptions.InvalidCacheTypeException;
 import com.mfvanek.caching.impl.LFUCache;
 import com.mfvanek.caching.impl.PersistenceLFUCache;
 import com.mfvanek.caching.impl.SimpleInMemoryCache;
-import com.mfvanek.caching.interfaces.Cache;
+import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.io.Serializable;
@@ -32,7 +32,7 @@ public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serial
         this.type = type;
     }
 
-    public Cache<KeyType, ValueType> build() throws Exception {
+    public CacheExtended<KeyType, ValueType> build() throws Exception {
         switch (cacheType) {
             case SIMPLE:
                 return new SimpleInMemoryCache<>(type, maxCacheSize);
