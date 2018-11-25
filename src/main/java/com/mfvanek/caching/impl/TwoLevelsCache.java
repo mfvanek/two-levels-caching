@@ -8,6 +8,8 @@ package com.mfvanek.caching.impl;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.interfaces.Cacheable;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 
 public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Serializable>
         implements Cache<KeyType, ValueType> {
+
+    private static final Logger logger = LoggerFactory.getLogger(TwoLevelsCache.class);
 
     private final Cache<KeyType, ValueType> firstLevel;
     private final Cache<KeyType, ValueType> secondLevel;
@@ -28,9 +32,10 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
 
     @Override
     public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) throws Exception {
-        // If item is being already in the cache and kept on the second level,
+        // If the item is already in the cache and stored in the second level,
         // we will not move it up, just update the value.
         if (secondLevel.containsKey(key)) {
+            logger.trace("The item is already in the cache and stored in the second level");
             return secondLevel.put(key, value);
         }
 
@@ -66,7 +71,18 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
 
     @Override
     public boolean containsKey(KeyType key) {
-        return firstLevel.containsKey(key) || secondLevel.containsKey(key);
+        if (firstLevel.containsKey(key)) {
+            logger.trace("The item is in the cache and stored in the first level");
+            return true;
+        }
+
+        if (secondLevel.containsKey(key)) {
+            logger.trace("The item is in the cache and stored in the second level");
+            return true;
+        }
+
+        logger.trace("The item doesn't present in the cache");
+        return false;
     }
 
     @Override
