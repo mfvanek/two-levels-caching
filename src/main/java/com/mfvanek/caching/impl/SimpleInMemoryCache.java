@@ -46,4 +46,9 @@ public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyT
     public int frequencyOf(KeyType key) {
         return INVALID_FREQUENCY;
     }
+
+    @Override
+    public int getLowestFrequency() {
+        return INVALID_FREQUENCY;
+    }
 }

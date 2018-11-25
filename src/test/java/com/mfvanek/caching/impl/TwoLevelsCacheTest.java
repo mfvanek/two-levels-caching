@@ -71,6 +71,17 @@ class TwoLevelsCacheTest extends BaseCacheTest {
         assertEquals(4, cache.size());
     }
 
+    @Test
+    void containsKeyInSecondLevel() throws Exception {
+        final Cache<String, Movie> cache = createCache(1);
+        cache.put(AQUAMAN);
+        cache.put(SNOWDEN);
+
+        assertEquals(2, cache.size());
+        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB)); // level 2
+        assertTrue(cache.containsKey(Movies.AQUAMAN_IMDB)); // level 1
+    }
+
     @Override
     protected Cache<String, Movie> createCache() throws Exception {
         return createCache(MAX_SIZE);

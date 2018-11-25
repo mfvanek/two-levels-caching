@@ -42,7 +42,8 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
         }
     }
 
-    private Integer getLowestFrequency() {
+    @Override
+    public int getLowestFrequency() {
         Optional<Integer> minFrequency = frequenciesList.keySet().stream().min(Integer::compareTo);
         return minFrequency.orElse(0);
     }

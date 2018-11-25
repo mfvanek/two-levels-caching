@@ -82,6 +82,11 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
         return helper.frequencyOf(key);
     }
 
+    @Override
+    public int getLowestFrequency() {
+        return helper.getLowestFrequency();
+    }
+
     private List<Map.Entry<KeyType, ValueType>> doEviction() {
         // This method will be called only when cache is full
         final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();

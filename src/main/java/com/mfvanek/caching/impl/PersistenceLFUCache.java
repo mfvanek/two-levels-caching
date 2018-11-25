@@ -6,19 +6,13 @@
 package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.helpers.LFUCacheHelper;
+import com.mfvanek.caching.helpers.Serializer;
 import com.mfvanek.caching.interfaces.Cacheable;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
@@ -66,7 +60,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
             }
             helper.rememberFrequency(0, key);
         }
-        innerMap.put(key, serialize(value, cacheFilePath));
+        innerMap.put(key, Serializer.serialize(value, cacheFilePath));
         return evictedItems;
     }
 
@@ -75,7 +69,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         ValueType value = null;
         final Path cacheFilePath = innerMap.get(key);
         if (cacheFilePath != null) {
-            value = deserialize(cacheFilePath);
+            value = Serializer.deserialize(getType(), cacheFilePath);
             helper.updateFrequency(key);
         }
         return value;
@@ -105,7 +99,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         ValueType deletedValue = null;
         final Path cacheFilePath = innerMap.remove(key);
         if (cacheFilePath != null) {
-            deletedValue = deserialize(cacheFilePath);
+            deletedValue = Serializer.deserialize(getType(), cacheFilePath);
             Files.deleteIfExists(cacheFilePath);
         }
         return deletedValue;
@@ -129,31 +123,18 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         return innerMap.size() == getCacheMaxSize();
     }
 
-    private ValueType deserialize(final Path cacheFilePath) throws IOException, ClassNotFoundException {
-        final byte[] data = Files.readAllBytes(cacheFilePath);
-        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
-            return getType().cast(ois.readObject());
-        }
-    }
-
     private Path generateSerializedFilePath() {
         return baseDirectory.resolve(UUID.randomUUID() + EXTENSION);
-    }
-
-    private Path serialize(ValueType value, final Path cacheFilePath) throws IOException {
-        try (FileChannel channel = FileChannel.open(cacheFilePath, StandardOpenOption.WRITE,
-                StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING);
-             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-             ObjectOutputStream ous = new ObjectOutputStream(bos)) {
-            ous.writeObject(value);
-            channel.write(ByteBuffer.wrap(bos.toByteArray()));
-        }
-        return cacheFilePath;
     }
 
     @Override
     public int frequencyOf(KeyType key) throws NoSuchElementException {
         return helper.frequencyOf(key);
+    }
+
+    @Override
+    public int getLowestFrequency() {
+        return helper.getLowestFrequency();
     }
 
     private List<Map.Entry<KeyType, ValueType>> doEviction() throws IOException, ClassNotFoundException {
