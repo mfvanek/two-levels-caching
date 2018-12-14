@@ -48,7 +48,7 @@ public final class Movie implements Cacheable<String>, Serializable {
             return true;
         }
 
-        if (obj.getClass() != getClass()) {
+        if (!(obj instanceof Movie)) {
             return false;
         }
 
