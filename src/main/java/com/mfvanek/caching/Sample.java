@@ -12,7 +12,6 @@ import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -48,11 +47,7 @@ class Sample {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                DirectoryUtils.deleteDirectory(directoryForPersistenceCache);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            DirectoryUtils.deleteDirectory(directoryForPersistenceCache);
         }
     }
 
@@ -74,7 +69,7 @@ class Sample {
     }
 
     private static void fillLevel(String levelNumber, int limit) {
-        System.out.println(String.format("\n=== Filling the cache with data. %s level ===", levelNumber));
+        System.out.printf("\n=== Filling the cache with data. %s level ===%n", levelNumber);
         Movies.getAllMovies().stream().limit(limit).forEach(movie -> {
             try {
                 System.out.println("Adding movie to the cache " + movie);
@@ -89,7 +84,7 @@ class Sample {
     }
 
     private static void testLevel(String levelNumber) {
-        System.out.println(String.format("\n=== Testing the cache. %s level ===", levelNumber));
+        System.out.printf("\n=== Testing the cache. %s level ===%n", levelNumber);
         Movies.getAllMovies().forEach(movie -> {
             try {
                 final String movieId = movie.getIdentifier();

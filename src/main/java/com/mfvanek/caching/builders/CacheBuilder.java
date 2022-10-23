@@ -12,6 +12,7 @@ import com.mfvanek.caching.impl.PersistenceLFUCache;
 import com.mfvanek.caching.impl.SimpleInMemoryCache;
 import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Cacheable;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -32,7 +33,7 @@ public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serial
         this.type = type;
     }
 
-    public CacheExtended<KeyType, ValueType> build() throws Exception {
+    public CacheExtended<KeyType, ValueType> build() {
         switch (cacheType) {
             case SIMPLE:
                 return new SimpleInMemoryCache<>(type, maxCacheSize);
@@ -67,10 +68,16 @@ public class CacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serial
     }
 
     public static Path getDefaultBaseDirectory() {
-        return Paths.get(".").resolve("/jcache/").toAbsolutePath();
+        if (SystemUtils.IS_OS_MAC) {
+            return Paths.get(System.getProperty("user.home"), "Library/Caches", "jcache")
+                    .toAbsolutePath();
+        }
+        return Paths.get(".")
+                .resolve("/jcache/")
+                .toAbsolutePath();
     }
 
-    public static <KeyType, ValueType extends Cacheable<KeyType>& Serializable> CacheBuilder<KeyType, ValueType> getInstance(Class<ValueType> type) {
+    public static <KeyType, ValueType extends Cacheable<KeyType> & Serializable> CacheBuilder<KeyType, ValueType> getInstance(Class<ValueType> type) {
         return new CacheBuilder<>(type);
     }
 }

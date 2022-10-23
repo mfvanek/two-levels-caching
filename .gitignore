@@ -1,2 +1,4 @@
 /target
 *.iws
+/caching.iml
+/caching.ipr

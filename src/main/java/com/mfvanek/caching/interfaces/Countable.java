@@ -5,11 +5,9 @@
 
 package com.mfvanek.caching.interfaces;
 
-import java.util.NoSuchElementException;
-
 public interface Countable<KeyType> {
 
-    int frequencyOf(KeyType key) throws NoSuchElementException;
+    int frequencyOf(KeyType key);
 
     int getLowestFrequency();
 }

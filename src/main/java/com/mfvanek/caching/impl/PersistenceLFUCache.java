@@ -8,8 +8,8 @@ package com.mfvanek.caching.impl;
 import com.mfvanek.caching.helpers.LFUCacheHelper;
 import com.mfvanek.caching.helpers.Serializer;
 import com.mfvanek.caching.interfaces.Cacheable;
+import lombok.SneakyThrows;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> & Serializable>
@@ -34,12 +33,13 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
 
     /**
      * Creates an instance of @see {PersistenceLFUCache} class
-     * @param maxCacheSize The maximum number of items that can be placed in the cache
+     *
+     * @param maxCacheSize   The maximum number of items that can be placed in the cache
      * @param evictionFactor The percentage of items that should be removed from the cache when it is full
-     * @param baseDirectory The directory in which the cached data will be saved. If the directory doesn't exist, it will be created.
+     * @param baseDirectory  The directory in which the cached data will be saved. If the directory doesn't exist, it will be created.
      */
-    public PersistenceLFUCache(Class<ValueType> type, int maxCacheSize, float evictionFactor, Path baseDirectory)
-            throws IOException {
+    @SneakyThrows
+    public PersistenceLFUCache(Class<ValueType> type, int maxCacheSize, float evictionFactor, Path baseDirectory) {
         super(type, maxCacheSize);
         this.helper = new LFUCacheHelper<>(evictionFactor);
         this.innerMap = new HashMap<>(maxCacheSize);
@@ -49,8 +49,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value)
-            throws IOException, ClassNotFoundException {
+    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) {
         List<Map.Entry<KeyType, ValueType>> evictedItems = Collections.emptyList();
         Path cacheFilePath = innerMap.get(key);
         if (cacheFilePath == null) {
@@ -65,7 +64,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public ValueType get(KeyType key) throws IOException, ClassNotFoundException {
+    public ValueType get(KeyType key) {
         ValueType value = null;
         final Path cacheFilePath = innerMap.get(key);
         if (cacheFilePath != null) {
@@ -81,12 +80,12 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public ValueType remove(KeyType key) throws IOException, ClassNotFoundException {
+    public ValueType remove(KeyType key) {
         return innerRemove(key).getValue();
     }
 
     @Override
-    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) throws IOException, ClassNotFoundException {
+    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) {
         Integer frequency = INVALID_FREQUENCY;
         final ValueType deletedValue = doRemove(key);
         if (deletedValue != null) {
@@ -95,7 +94,8 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         return new AbstractMap.SimpleEntry<>(frequency, deletedValue);
     }
 
-    private ValueType doRemove(KeyType key) throws IOException, ClassNotFoundException {
+    @SneakyThrows
+    private ValueType doRemove(KeyType key) {
         ValueType deletedValue = null;
         final Path cacheFilePath = innerMap.remove(key);
         if (cacheFilePath != null) {
@@ -105,8 +105,9 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         return deletedValue;
     }
 
+    @SneakyThrows
     @Override
-    public void clear() throws IOException {
+    public void clear() {
         for (Map.Entry<KeyType, Path> entry : innerMap.entrySet()) {
             Files.deleteIfExists(entry.getValue());
         }
@@ -128,7 +129,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public int frequencyOf(KeyType key) throws NoSuchElementException {
+    public int frequencyOf(KeyType key) {
         return helper.frequencyOf(key);
     }
 
@@ -137,7 +138,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         return helper.getLowestFrequency();
     }
 
-    private List<Map.Entry<KeyType, ValueType>> doEviction() throws IOException, ClassNotFoundException {
+    private List<Map.Entry<KeyType, ValueType>> doEviction() {
         // This method will be called only when cache is full
         final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();
         final float target = getCacheMaxSize() * helper.getEvictionFactor();

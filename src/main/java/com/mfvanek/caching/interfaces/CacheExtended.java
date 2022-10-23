@@ -12,5 +12,5 @@ public interface CacheExtended<KeyType, ValueType extends Cacheable<KeyType>>
 
     Integer INVALID_FREQUENCY = -1;
 
-    Map.Entry<Integer, ValueType> innerRemove(KeyType key) throws Exception;
+    Map.Entry<Integer, ValueType> innerRemove(KeyType key);
 }

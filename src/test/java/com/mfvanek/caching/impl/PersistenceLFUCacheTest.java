@@ -53,8 +53,7 @@ class PersistenceLFUCacheTest extends BaseLFUCacheTest {
         return createCache(MAX_SIZE, evictionFactor, true);
     }
 
-    private static Cache<String, Movie> createCache(int maxSize, float evictionFactor, boolean useTmpDir)
-            throws Exception {
+    private static Cache<String, Movie> createCache(int maxSize, float evictionFactor, boolean useTmpDir) {
         final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance(Movie.class);
         builder.setCacheType(CacheType.PERSISTENCE_LFU).setMaxSize(maxSize).setEvictionFactor(evictionFactor);
         if (useTmpDir) {

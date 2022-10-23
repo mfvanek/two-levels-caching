@@ -8,9 +8,8 @@ package com.mfvanek.caching.impl;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Cacheable;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -18,10 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Serializable>
         implements Cache<KeyType, ValueType> {
-
-    private static final Logger logger = LoggerFactory.getLogger(TwoLevelsCache.class);
 
     private final CacheExtended<KeyType, ValueType> firstLevel;
     private final CacheExtended<KeyType, ValueType> secondLevel;
@@ -32,18 +30,18 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
     }
 
     @Override
-    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) throws Exception {
+    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) {
         List<Map.Entry<KeyType, ValueType>> evictedItems;
         // If the item is already in the cache and stored in the second level,
         // we will not move it up, just update the value.
         if (secondLevel.containsKey(key)) {
-            logger.trace("The item is already in the cache and stored in the second level");
+            log.trace("The item is already in the cache and stored in the second level");
             evictedItems = secondLevel.put(key, value);
         } else {
             // The item that is not present in the cache or is held on the first level, will be proceeded as usual.
             final List<Map.Entry<KeyType, ValueType>> firstLevelEvictedItems = firstLevel.put(key, value);
             if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
-                logger.trace("Some elements have been evicted from the first level = {}", firstLevelEvictedItems);
+                log.trace("Some elements have been evicted from the first level = {}", firstLevelEvictedItems);
                 // TODO implement Cache::putAll method
                 evictedItems = new LinkedList<>();
                 for (Map.Entry<KeyType, ValueType> entry : firstLevelEvictedItems) {
@@ -51,22 +49,22 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
                     evictedItems.addAll(secondLevelEvictedItems);
                 }
             } else {
-                logger.trace("None of the elements have been evicted from the first level");
+                log.trace("None of the elements have been evicted from the first level");
                 evictedItems = firstLevelEvictedItems;
             }
         }
-        logger.debug("evictedItems = {}", evictedItems);
+        log.debug("evictedItems = {}", evictedItems);
         return evictedItems;
     }
 
     @Override
-    public List<ValueType> put(ValueType value) throws Exception {
+    public List<ValueType> put(ValueType value) {
         final List<Map.Entry<KeyType, ValueType>> evictedItems =  this.put(value.getIdentifier(), value);
         return evictedItems.stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
     @Override
-    public ValueType get(KeyType key) throws Exception {
+    public ValueType get(KeyType key) {
         String level = null;
         // TODO we need to refresh the cache on getting values
         ValueType foundItem = firstLevel.get(key);
@@ -79,9 +77,9 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
             level = "first";
         }
         if (level != null) {
-            logger.trace("The item has been found in the {} level; {}", level, foundItem);
+            log.trace("The item has been found in the {} level; {}", level, foundItem);
         } else {
-            logger.trace("The item with key = {} hasn't been found in the cache", key);
+            log.trace("The item with key = {} hasn't been found in the cache", key);
         }
         return foundItem;
     }
@@ -99,15 +97,15 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
         }
 
         if (level != null) {
-            logger.trace("The item with key = {} is in the cache and stored in the {} level", key, level);
+            log.trace("The item with key = {} is in the cache and stored in the {} level", key, level);
         } else {
-            logger.trace("The item with key = {} doesn't present in the cache", key);
+            log.trace("The item with key = {} doesn't present in the cache", key);
         }
         return result;
     }
 
     @Override
-    public ValueType remove(KeyType key) throws Exception {
+    public ValueType remove(KeyType key) {
         String level = null;
         ValueType deletedItem = firstLevel.remove(key);
         if (deletedItem == null) {
@@ -119,15 +117,15 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
             level = "first";
         }
         if (level != null) {
-            logger.trace("The item has been successfully deleted from the {} level; {}", level, deletedItem);
+            log.trace("The item has been successfully deleted from the {} level; {}", level, deletedItem);
         } else {
-            logger.trace("No item has been deleted with key = {}", key);
+            log.trace("No item has been deleted with key = {}", key);
         }
         return deletedItem;
     }
 
     @Override
-    public void clear() throws Exception {
+    public void clear() {
         firstLevel.clear();
         secondLevel.clear();
     }

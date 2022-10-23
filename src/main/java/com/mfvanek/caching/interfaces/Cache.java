@@ -16,22 +16,22 @@ public interface Cache<KeyType, ValueType extends Cacheable<KeyType>> {
      * @param value The element to be stored in the cache
      * @return Returns a list of pairs [key, element] evicted from the cache
      */
-    List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) throws Exception;
+    List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value);
 
     /**
      * Puts the element in the cache
      * @param value The element to be stored in the cache
      * @return Returns a list of elements evicted from the cache
      */
-    List<ValueType> put(ValueType value) throws Exception;
+    List<ValueType> put(ValueType value);
 
-    ValueType get(KeyType key) throws Exception;
+    ValueType get(KeyType key);
 
     boolean containsKey(KeyType key);
 
-    ValueType remove(KeyType key) throws Exception;
+    ValueType remove(KeyType key);
 
-    void clear() throws Exception;
+    void clear();
 
     int size();
 }
