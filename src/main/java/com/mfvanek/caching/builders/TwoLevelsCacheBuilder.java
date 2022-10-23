@@ -27,7 +27,7 @@ public class TwoLevelsCacheBuilder<KeyType, ValueType extends Cacheable<KeyType>
         this.type = type;
     }
 
-    public Cache<KeyType, ValueType> build() throws Exception {
+    public Cache<KeyType, ValueType> build() {
         final  CacheBuilder<KeyType, ValueType> builder = CacheBuilder.getInstance(type);
         final CacheExtended<KeyType, ValueType> firstLevel = builder.setCacheType(CacheType.LFU).
                 setMaxSize(firstLevelMaxSize).setEvictionFactor(firstLevelEvictionFactor).build();

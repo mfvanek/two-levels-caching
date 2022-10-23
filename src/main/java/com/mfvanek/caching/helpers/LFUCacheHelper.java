@@ -49,7 +49,7 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
     }
 
     @Override
-    public int frequencyOf(KeyType key) throws NoSuchElementException {
+    public int frequencyOf(KeyType key) {
         if (innerFrequencyMap.containsKey(key)) {
             return innerFrequencyMap.get(key);
         }

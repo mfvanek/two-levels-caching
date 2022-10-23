@@ -22,7 +22,7 @@ public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyT
         extends AbstractMapCache<KeyType, ValueType> {
 
     public SimpleInMemoryCache(Class<ValueType> type, int maxCacheSize) {
-        super(type, maxCacheSize, new LinkedHashMap<KeyType, ValueType>(maxCacheSize) {
+        super(type, maxCacheSize, new LinkedHashMap<>(maxCacheSize) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<KeyType, ValueType> eldest) {
                 return size() > maxCacheSize;

@@ -5,17 +5,19 @@
 
 package com.mfvanek.caching.helpers;
 
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
+
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
+@UtilityClass
 public final class DirectoryUtils {
 
-    private DirectoryUtils() {}
-
-    public static void deleteDirectory(Path directoryToDelete) throws IOException {
+    @SneakyThrows
+    public static void deleteDirectory(Path directoryToDelete) {
         if (Files.exists(directoryToDelete) && Files.isDirectory(directoryToDelete)) {
             Files.walk(directoryToDelete)
                     .sorted(Comparator.reverseOrder())

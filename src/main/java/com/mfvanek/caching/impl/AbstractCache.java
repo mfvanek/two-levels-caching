@@ -37,7 +37,7 @@ abstract class AbstractCache<KeyType, ValueType extends Cacheable<KeyType>>
     }
 
     @Override
-    public List<ValueType> put(ValueType value)  throws Exception {
+    public List<ValueType> put(ValueType value) {
         final List<Map.Entry<KeyType, ValueType>> evictedItems =  this.put(value.getIdentifier(), value);
         return evictedItems.stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }

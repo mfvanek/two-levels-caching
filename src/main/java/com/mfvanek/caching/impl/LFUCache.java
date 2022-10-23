@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * Thread unsafe implementation of LFU cache (Least Frequently Used).
@@ -78,7 +77,7 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
     }
 
     @Override
-    public int frequencyOf(KeyType key) throws NoSuchElementException {
+    public int frequencyOf(KeyType key) {
         return helper.frequencyOf(key);
     }
 
