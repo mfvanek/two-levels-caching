@@ -31,7 +31,7 @@ class Sample {
     private static final float FIRST_LEVEL_EVICTION_FACTOR = 0.5f; // Two items will be evicted from the cache when it becomes full
     private static final float SECOND_LEVEL_EVICTION_FACTOR = 0.3f;
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         try {
             System.out.println("Hello there! This is a caching demo app!");
 
