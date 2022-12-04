@@ -8,28 +8,30 @@ package com.mfvanek.caching.interfaces;
 import java.util.List;
 import java.util.Map;
 
-public interface Cache<KeyType, ValueType extends Cacheable<KeyType>> {
+public interface Cache<K, V extends Cacheable<K>> {
 
     /**
-     * Puts the element with given key in the cache
-     * @param key The key
+     * Puts the element with given key in the cache.
+     *
+     * @param key   The key
      * @param value The element to be stored in the cache
      * @return Returns a list of pairs [key, element] evicted from the cache
      */
-    List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value);
+    List<Map.Entry<K, V>> put(K key, V value);
 
     /**
-     * Puts the element in the cache
+     * Puts the element in the cache.
+     *
      * @param value The element to be stored in the cache
      * @return Returns a list of elements evicted from the cache
      */
-    List<ValueType> put(ValueType value);
+    List<V> put(V value);
 
-    ValueType get(KeyType key);
+    V get(K key);
 
-    boolean containsKey(KeyType key);
+    boolean containsKey(K key);
 
-    ValueType remove(KeyType key);
+    V remove(K key);
 
     void clear();
 

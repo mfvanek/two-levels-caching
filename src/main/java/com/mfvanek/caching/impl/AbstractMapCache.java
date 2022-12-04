@@ -9,17 +9,16 @@ import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.util.Map;
 
-abstract class AbstractMapCache<KeyType, ValueType extends Cacheable<KeyType>>
-        extends AbstractCache<KeyType, ValueType> {
+abstract class AbstractMapCache<K, V extends Cacheable<K>> extends AbstractCache<K, V> {
 
-    private final Map<KeyType, ValueType> innerMap;
+    private final Map<K, V> innerMap;
 
-    protected AbstractMapCache(Class<ValueType> type, int maxCacheSize, Map<KeyType, ValueType> innerMap) {
+    protected AbstractMapCache(final Class<V> type, final int maxCacheSize, final Map<K, V> innerMap) {
         super(type, maxCacheSize);
         this.innerMap = innerMap;
     }
 
-    protected Map<KeyType, ValueType> getInnerMap() {
+    protected Map<K, V> getInnerMap() {
         return innerMap;
     }
 
@@ -28,17 +27,17 @@ abstract class AbstractMapCache<KeyType, ValueType extends Cacheable<KeyType>>
     }
 
     @Override
-    public ValueType get(KeyType key) {
+    public V get(final K key) {
         return innerMap.get(key);
     }
 
     @Override
-    public boolean containsKey(KeyType key) {
+    public boolean containsKey(final K key) {
         return innerMap.containsKey(key);
     }
 
     @Override
-    public ValueType remove(KeyType key) {
+    public V remove(final K key) {
         return innerMap.remove(key);
     }
 

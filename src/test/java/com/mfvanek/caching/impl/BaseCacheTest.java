@@ -10,17 +10,21 @@ import com.mfvanek.caching.helpers.DirectoryUtils;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 abstract class BaseCacheTest {
 
@@ -30,20 +34,20 @@ abstract class BaseCacheTest {
     protected static final Movie INCEPTION = Movies.getInception();
     protected static final Movie INTERSTELLAR = Movies.getInterstellar();
     protected static final Movie ARRIVAL = Movies.getArrival();
+    protected static Path tempDir;
 
     protected abstract Cache<String, Movie> createCache() throws Exception;
 
     protected abstract Cache<String, Movie> createCache(int maxSize) throws Exception;
 
-    protected static Path tempDir;
-
+    @SneakyThrows
     @BeforeAll
-    static void setUp() throws IOException {
+    static void setUp() {
         tempDir = Files.createTempDirectory("jcache");
     }
 
     @AfterAll
-    static void tearDown() throws IOException {
+    static void tearDown() {
         DirectoryUtils.deleteDirectory(tempDir);
         DirectoryUtils.deleteDirectory(CacheBuilder.getDefaultBaseDirectory());
     }

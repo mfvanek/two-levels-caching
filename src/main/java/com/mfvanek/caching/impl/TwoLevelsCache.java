@@ -18,20 +18,20 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Serializable>
-        implements Cache<KeyType, ValueType> {
+public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements Cache<K, V> {
 
-    private final CacheExtended<KeyType, ValueType> firstLevel;
-    private final CacheExtended<KeyType, ValueType> secondLevel;
+    private final CacheExtended<K, V> firstLevel;
+    private final CacheExtended<K, V> secondLevel;
 
-    public TwoLevelsCache(CacheExtended<KeyType, ValueType> firstLevel, CacheExtended<KeyType, ValueType> secondLevel) {
+    public TwoLevelsCache(final CacheExtended<K, V> firstLevel,
+                          final CacheExtended<K, V> secondLevel) {
         this.firstLevel = firstLevel;
         this.secondLevel = secondLevel;
     }
 
     @Override
-    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) {
-        List<Map.Entry<KeyType, ValueType>> evictedItems;
+    public List<Map.Entry<K, V>> put(final K key, final V value) {
+        List<Map.Entry<K, V>> evictedItems;
         // If the item is already in the cache and stored in the second level,
         // we will not move it up, just update the value.
         if (secondLevel.containsKey(key)) {
@@ -39,13 +39,13 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
             evictedItems = secondLevel.put(key, value);
         } else {
             // The item that is not present in the cache or is held on the first level, will be proceeded as usual.
-            final List<Map.Entry<KeyType, ValueType>> firstLevelEvictedItems = firstLevel.put(key, value);
+            final List<Map.Entry<K, V>> firstLevelEvictedItems = firstLevel.put(key, value);
             if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
                 log.trace("Some elements have been evicted from the first level = {}", firstLevelEvictedItems);
                 // TODO implement Cache::putAll method
                 evictedItems = new LinkedList<>();
-                for (Map.Entry<KeyType, ValueType> entry : firstLevelEvictedItems) {
-                    final List<Map.Entry<KeyType, ValueType>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());
+                for (Map.Entry<K, V> entry : firstLevelEvictedItems) {
+                    final List<Map.Entry<K, V>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());
                     evictedItems.addAll(secondLevelEvictedItems);
                 }
             } else {
@@ -58,16 +58,16 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
     }
 
     @Override
-    public List<ValueType> put(ValueType value) {
-        final List<Map.Entry<KeyType, ValueType>> evictedItems =  this.put(value.getIdentifier(), value);
+    public List<V> put(final V value) {
+        final List<Map.Entry<K, V>> evictedItems = this.put(value.getIdentifier(), value);
         return evictedItems.stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
     @Override
-    public ValueType get(KeyType key) {
+    public V get(final K key) {
         String level = null;
         // TODO we need to refresh the cache on getting values
-        ValueType foundItem = firstLevel.get(key);
+        V foundItem = firstLevel.get(key);
         if (foundItem == null) {
             foundItem = secondLevel.get(key);
             if (foundItem != null) {
@@ -85,14 +85,17 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
     }
 
     @Override
-    public boolean containsKey(KeyType key) {
-        boolean result;
-        String level = null;
-        if ((result = firstLevel.containsKey(key))) {
+    public boolean containsKey(final K key) {
+        final String level;
+        boolean result = firstLevel.containsKey(key);
+        if (result) {
             level = "first";
         } else {
-            if ((result = secondLevel.containsKey(key))) {
+            result = secondLevel.containsKey(key);
+            if (result) {
                 level = "second";
+            } else {
+                level = null;
             }
         }
 
@@ -105,9 +108,9 @@ public class TwoLevelsCache<KeyType, ValueType extends Cacheable<KeyType> & Seri
     }
 
     @Override
-    public ValueType remove(KeyType key) {
+    public V remove(final K key) {
         String level = null;
-        ValueType deletedItem = firstLevel.remove(key);
+        V deletedItem = firstLevel.remove(key);
         if (deletedItem == null) {
             deletedItem = secondLevel.remove(key);
             if (deletedItem != null) {

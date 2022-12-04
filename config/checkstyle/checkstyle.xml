@@ -50,11 +50,17 @@
         <module name="ExecutableStatementCount"/>
         <module name="ExplicitInitialization"/>
         <!-- <module name="FinalClass"/> invalid -->
+
+        <!-- TODO
         <module name="FinalLocalVariable"/>
         <module name="FinalParameters"/>
+        -->
+
         <!-- <module name="HiddenField"/> invalid -->
         <!-- <module name="HideUtilityClassConstructor"/> invalid -->
-        <module name="IllegalCatch"/>
+
+        <!-- <module name="IllegalCatch"/> TODO-->
+
         <module name="IllegalIdentifierName"/>
         <module name="IllegalInstantiation"/>
         <module name="IllegalThrows"/>
@@ -206,12 +212,14 @@
         <module name="AbbreviationAsWordInName">
             <property name="ignoreFinal" value="false"/>
             <property name="allowedAbbreviationLength" value="0"/>
-            <property name="allowedAbbreviations" value="SSD"/>
+            <property name="allowedAbbreviations" value="LFU"/>
             <property name="tokens"
                       value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF, ANNOTATION_DEF, ANNOTATION_FIELD_DEF, PARAMETER_DEF, VARIABLE_DEF, METHOD_DEF, PATTERN_VARIABLE_DEF, RECORD_DEF, RECORD_COMPONENT_DEF"/>
         </module>
         <!-- <module name="OverloadMethodsDeclarationOrder"/> invalid -->
-        <module name="VariableDeclarationUsageDistance"/>
+        <module name="VariableDeclarationUsageDistance">
+            <property name="allowedDistance" value="4"/>
+        </module>
         <!-- <module name="ImportOrder"/> invalid -->
         <module name="CustomImportOrder">
             <property name="sortImportsInGroupAlphabetically" value="true"/>
@@ -221,6 +229,8 @@
         </module>
         <module name="UnusedImports"/>
         <module name="RedundantImport"/>
+
+        <!-- TODO
         <module name="IllegalImport">
             <property name="regexp" value="true"/>
             <property name="illegalClasses"
@@ -232,6 +242,8 @@
                 ^org\.springframework\.test\.web\.servlet\.MockMvc"/>
             <property name="illegalPkgs" value="^org\.hamcrest"/>
         </module>
+        -->
+
         <module name="MethodParamPad"/>
         <module name="NoWhitespaceBefore"/>
         <module name="NoWhitespaceBeforeCaseDefaultColon"/>

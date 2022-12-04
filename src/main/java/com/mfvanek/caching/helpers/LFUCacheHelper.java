@@ -8,7 +8,6 @@ package com.mfvanek.caching.helpers;
 import com.mfvanek.caching.interfaces.Countable;
 import org.apache.commons.collections4.CollectionUtils;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -18,14 +17,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
+public class LFUCacheHelper<K> implements Countable<K> {
 
     private final float evictionFactor;
-    private final Map<Integer, Set<KeyType>> frequenciesList;
-    private final Map<KeyType, Integer> innerFrequencyMap;
+    private final Map<Integer, Set<K>> frequenciesList;
+    private final Map<K, Integer> innerFrequencyMap;
 
-    public LFUCacheHelper(float evictionFactor) {
-        LFUCacheHelper.ValidateEvictionFactor(evictionFactor);
+    public LFUCacheHelper(final float evictionFactor) {
+        LFUCacheHelper.validateEvictionFactor(evictionFactor);
 
         this.evictionFactor = evictionFactor;
         this.frequenciesList = new TreeMap<>();
@@ -36,7 +35,7 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
         return evictionFactor;
     }
 
-    private static void ValidateEvictionFactor(float evictionFactor) {
+    private static void validateEvictionFactor(final float evictionFactor) {
         if (evictionFactor <= 0.0f || evictionFactor > 1.0f) {
             throw new IllegalArgumentException("Eviction factor must be greater than 0 and less than or equal to 1");
         }
@@ -49,7 +48,7 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
     }
 
     @Override
-    public int frequencyOf(KeyType key) {
+    public int frequencyOf(final K key) {
         if (innerFrequencyMap.containsKey(key)) {
             return innerFrequencyMap.get(key);
         }
@@ -61,18 +60,18 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
         innerFrequencyMap.clear();
     }
 
-    public void removeKeyOnEviction(KeyType key) {
+    public void removeKeyOnEviction(final K key) {
         innerFrequencyMap.remove(key);
     }
 
-    public Integer removeKeyFromFrequenciesList(KeyType key) {
+    public Integer removeKeyFromFrequenciesList(final K key) {
         final Integer frequency = innerFrequencyMap.remove(key);
         removeKeyFromFrequenciesList(key, frequency);
         return frequency;
     }
 
-    private void removeKeyFromFrequenciesList(KeyType key, Integer frequency) {
-        final Set<KeyType> keys = frequenciesList.get(frequency);
+    private void removeKeyFromFrequenciesList(final K key, final Integer frequency) {
+        final Set<K> keys = frequenciesList.get(frequency);
         if (keys.size() > 1) {
             keys.remove(key);
         } else {
@@ -80,10 +79,10 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
         }
     }
 
-    public void rememberFrequency(Integer frequency, KeyType key) {
-        Set<KeyType> keys = frequenciesList.get(frequency);
+    public void rememberFrequency(final Integer frequency, final K key) {
+        Set<K> keys = frequenciesList.get(frequency);
         if (keys == null) {
-            keys = new HashSet<>(Collections.singletonList(key));
+            keys = new HashSet<>(Set.of(key));
             frequenciesList.put(frequency, keys);
         } else {
             keys.add(key);
@@ -91,18 +90,18 @@ public class LFUCacheHelper<KeyType> implements Countable<KeyType> {
         innerFrequencyMap.put(key, frequency);
     }
 
-    public void updateFrequency(KeyType key) {
+    public void updateFrequency(final K key) {
         final Integer frequency = innerFrequencyMap.get(key);
         removeKeyFromFrequenciesList(key, frequency);
         rememberFrequency(frequency + 1, key);
     }
 
-    public Iterator<KeyType> iteratorForLowestFrequency() {
+    public Iterator<K> iteratorForLowestFrequency() {
         // We need to remove entries with empty values
         frequenciesList.entrySet().removeIf(e -> CollectionUtils.isEmpty(e.getValue()));
 
         final Integer lowestFrequency = getLowestFrequency();
-        final Set<KeyType> keys = frequenciesList.get(lowestFrequency);
+        final Set<K> keys = frequenciesList.get(lowestFrequency);
         return keys.iterator();
     }
 }

@@ -5,7 +5,7 @@
 
 package com.mfvanek.caching.interfaces;
 
-public interface Cacheable<KeyType> {
+public interface Cacheable<K> {
 
-    KeyType getIdentifier();
+    K getIdentifier();
 }

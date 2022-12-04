@@ -5,9 +5,9 @@
 
 package com.mfvanek.caching.interfaces;
 
-public interface Countable<KeyType> {
+public interface Countable<K> {
 
-    int frequencyOf(KeyType key);
+    int frequencyOf(K key);
 
     int getLowestFrequency();
 }

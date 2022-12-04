@@ -7,10 +7,9 @@ package com.mfvanek.caching.interfaces;
 
 import java.util.Map;
 
-public interface CacheExtended<KeyType, ValueType extends Cacheable<KeyType>>
-        extends Cache<KeyType, ValueType>, Countable<KeyType> {
+public interface CacheExtended<K, V extends Cacheable<K>> extends Cache<K, V>, Countable<K> {
 
     Integer INVALID_FREQUENCY = -1;
 
-    Map.Entry<Integer, ValueType> innerRemove(KeyType key);
+    Map.Entry<Integer, V> innerRemove(K key);
 }
