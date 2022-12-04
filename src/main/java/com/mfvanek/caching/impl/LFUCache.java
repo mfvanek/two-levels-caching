@@ -18,6 +18,7 @@ import java.util.Map;
 
 /**
  * Thread unsafe implementation of LFU cache (Least Frequently Used).
+ *
  * @see <a href="https://en.wikipedia.org/wiki/Least_frequently_used">https://en.wikipedia.org/wiki/Least_frequently_used</a>
  * @param <KeyType>
  * @param <ValueType>
