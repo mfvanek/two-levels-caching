@@ -3,4 +3,8 @@
     <Match>
         <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
     </Match>
+    <Match>
+        <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+        <Class name="com.mfvanek.caching.builders.CacheBuilder"/>
+    </Match>
 </FindBugsFilter>

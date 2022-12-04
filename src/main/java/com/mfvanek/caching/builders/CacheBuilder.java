@@ -71,6 +71,10 @@ public class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
             return Paths.get(System.getProperty("user.home"), "Library/Caches", "jcache")
                     .toAbsolutePath();
         }
+        if (SystemUtils.IS_OS_LINUX) {
+            return Paths.get("/var/tmp/", "jcache")
+                    .toAbsolutePath();
+        }
         return Paths.get(".")
                 .resolve("/jcache/")
                 .toAbsolutePath();
