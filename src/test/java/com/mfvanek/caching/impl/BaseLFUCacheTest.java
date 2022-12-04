@@ -38,17 +38,16 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     private static CacheExtended<String, Movie> asExtended(final Cache<String, Movie> cache)
             throws ClassCastException {
         if (cache instanceof CacheExtended) {
-            //noinspection unchecked
             return (CacheExtended<String, Movie>) cache;
         }
         throw new ClassCastException();
     }
 
-    protected abstract Cache<String, Movie> createCache(float evictionFactor) throws Exception;
+    protected abstract Cache<String, Movie> createCache(float evictionFactor);
 
     @Test
     @Override
-    final void putTheSameValue() throws Exception {
+    final void putTheSameValue() {
         final Cache<String, Movie> cache = createCache(1.0f);
         final Countable<String> countable = asCountable(cache);
         List<Movie> evictedItems = cache.put(SNOWDEN);
@@ -64,7 +63,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
 
     @Test
     @Override
-    final void putOnlyValue() throws Exception {
+    final void putOnlyValue() {
         final Cache<String, Movie> cache = createCache(1.0f);
         final Countable<String> countable = asCountable(cache);
 
@@ -87,7 +86,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     }
 
     @Test
-    final void evictionWithDifferentFrequencies() throws Exception {
+    final void evictionWithDifferentFrequencies() {
         final Cache<String, Movie> cache = createCache(1.0f);
         final Countable<String> countable = asCountable(cache);
 
@@ -111,7 +110,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
 
     @Test
     @Override
-    void get() throws Exception {
+    void get() {
         final Cache<String, Movie> cache = createCache();
         final Countable<String> countable = asCountable(cache);
         cache.put(SNOWDEN);
@@ -143,7 +142,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     }
 
     @Test
-    final void innerRemoveNotExisting() throws Exception {
+    final void innerRemoveNotExisting() {
         final CacheExtended<String, Movie> cache = asExtended(createCache());
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
@@ -159,7 +158,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     }
 
     @Test
-    final void innerRemove() throws Exception {
+    final void innerRemove() {
         // Arrange
         final CacheExtended<String, Movie> cache = asExtended(createCache());
         cache.put(SNOWDEN);

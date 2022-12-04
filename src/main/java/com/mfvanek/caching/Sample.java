@@ -10,6 +10,7 @@ import com.mfvanek.caching.helpers.DirectoryUtils;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -46,22 +47,21 @@ class Sample {
             fillWithEviction();
 
             log.info("%nClosing the app...");
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
         } finally {
             DirectoryUtils.deleteDirectory(directoryForPersistenceCache);
         }
     }
 
-    private static void initCache() throws Exception {
+    @SneakyThrows
+    private static void initCache() {
         directoryForPersistenceCache = Files.createTempDirectory("jcache");
         log.info("%n=== Initializing the cache ===");
         log.info("Persistence cache will be stored in {}", directoryForPersistenceCache);
         log.info("First level cache max size is {}", FIRST_LEVEL_MAX_SIZE);
         log.info("Second level cache max size is {}", SECOND_LEVEL_MAX_SIZE);
 
-        final TwoLevelsCacheBuilder<String, Movie> builder = TwoLevelsCacheBuilder.getInstance(Movie.class);
-        cache = builder.setBaseDirectory(directoryForPersistenceCache)
+        cache = TwoLevelsCacheBuilder.getInstance(Movie.class)
+                .setBaseDirectory(directoryForPersistenceCache)
                 .setFirstLevelMaxSize(FIRST_LEVEL_MAX_SIZE)
                 .setSecondLevelMaxSize(SECOND_LEVEL_MAX_SIZE)
                 .setFirstLevelEvictionFactor(FIRST_LEVEL_EVICTION_FACTOR)
@@ -69,18 +69,18 @@ class Sample {
                 .build();
     }
 
-    private static void fillLevel(String levelNumber, int limit) {
+    private static void fillLevel(final String levelNumber, final int limit) {
         log.info("%n=== Filling the cache with data. {} level ===%n", levelNumber);
         Movies.getAllMovies().stream().limit(limit).forEach(movie -> {
             log.info("Adding movie to the cache {}", movie);
-            List<Movie> evictedItems = cache.put(movie);
+            final List<Movie> evictedItems = cache.put(movie);
             if (CollectionUtils.isNotEmpty(evictedItems)) {
                 throw new RuntimeException("Error occurs when adding movie to the cache");
             }
         });
     }
 
-    private static void testLevel(String levelNumber) {
+    private static void testLevel(final String levelNumber) {
         log.info("%n=== Testing the cache. {} level ===%n", levelNumber);
         Movies.getAllMovies().forEach(movie -> {
             final String movieId = movie.getIdentifier();
@@ -109,7 +109,7 @@ class Sample {
         final int count = Math.abs(FIRST_LEVEL_MAX_SIZE + SECOND_LEVEL_MAX_SIZE - Movies.getAllMovies().size()) + 1;
         Movies.getRandomGeneratedMovies(count).forEach(movie -> {
             log.info("Adding movie to the cache {}", movie);
-            List<Movie> evictedItems = cache.put(movie);
+            final List<Movie> evictedItems = cache.put(movie);
             if (CollectionUtils.isNotEmpty(evictedItems)) {
                 evictedItems.forEach(m -> log.info("!! Movie evicted from the cache {}", m));
             }

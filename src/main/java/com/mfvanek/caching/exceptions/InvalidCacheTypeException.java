@@ -9,7 +9,7 @@ import com.mfvanek.caching.enums.CacheType;
 
 public class InvalidCacheTypeException extends RuntimeException {
 
-    public InvalidCacheTypeException(CacheType cacheType) {
+    public InvalidCacheTypeException(final CacheType cacheType) {
         super("Unsupported cache type " + cacheType);
     }
 }

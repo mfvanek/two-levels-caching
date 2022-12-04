@@ -31,7 +31,7 @@ public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements
 
     @Override
     public List<Map.Entry<K, V>> put(final K key, final V value) {
-        List<Map.Entry<K, V>> evictedItems;
+        final List<Map.Entry<K, V>> evictedItems;
         // If the item is already in the cache and stored in the second level,
         // we will not move it up, just update the value.
         if (secondLevel.containsKey(key)) {
@@ -42,7 +42,6 @@ public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements
             final List<Map.Entry<K, V>> firstLevelEvictedItems = firstLevel.put(key, value);
             if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
                 log.trace("Some elements have been evicted from the first level = {}", firstLevelEvictedItems);
-                // TODO implement Cache::putAll method
                 evictedItems = new LinkedList<>();
                 for (Map.Entry<K, V> entry : firstLevelEvictedItems) {
                     final List<Map.Entry<K, V>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());

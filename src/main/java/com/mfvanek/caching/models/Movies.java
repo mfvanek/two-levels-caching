@@ -58,7 +58,7 @@ public class Movies {
         return List.of(getArrival(), getAquaman(), getInception(), getInterstellar(), getMartian(), getSnowden());
     }
 
-    public static List<Movie> getRandomGeneratedMovies(int count) {
+    public static List<Movie> getRandomGeneratedMovies(final int count) {
         final List<Movie> lst = new ArrayList<>(count);
         for (int i = 0; i < count; ++i) {
             lst.add(getRandomGeneratedMovie());

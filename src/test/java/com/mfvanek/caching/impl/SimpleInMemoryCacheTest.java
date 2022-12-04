@@ -20,7 +20,7 @@ class SimpleInMemoryCacheTest extends BaseCacheTest {
 
     @Test
     @Override
-    void putOnlyValue() throws Exception {
+    void putOnlyValue() {
         // Arrange
         final Cache<String, Movie> cache = createCache();
 
@@ -39,13 +39,14 @@ class SimpleInMemoryCacheTest extends BaseCacheTest {
     }
 
     @Override
-    protected Cache<String, Movie> createCache() throws Exception {
+    protected Cache<String, Movie> createCache() {
         return createCache(MAX_SIZE);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(int maxSize) throws Exception {
-        final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance(Movie.class);
-        return builder.setMaxSize(maxSize).build();
+    protected Cache<String, Movie> createCache(final int maxSize) {
+        return CacheBuilder.getInstance(Movie.class)
+                .setMaxSize(maxSize)
+                .build();
     }
 }

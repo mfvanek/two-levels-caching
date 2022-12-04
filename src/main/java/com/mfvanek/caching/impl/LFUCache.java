@@ -91,7 +91,7 @@ public class LFUCache<K, V extends Cacheable<K>> extends AbstractMapCache<K, V> 
         final float target = getCacheMaxSize() * helper.getEvictionFactor();
         int currentlyDeleted = 0;
         while (currentlyDeleted < target) {
-            Iterator<K> it = helper.iteratorForLowestFrequency();
+            final Iterator<K> it = helper.iteratorForLowestFrequency();
             while (it.hasNext() && currentlyDeleted++ < target) {
                 final K key = it.next();
                 final V value = super.remove(key);

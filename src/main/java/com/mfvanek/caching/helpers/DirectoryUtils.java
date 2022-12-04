@@ -17,7 +17,7 @@ import java.util.Comparator;
 public final class DirectoryUtils {
 
     @SneakyThrows
-    public static void deleteDirectory(Path directoryToDelete) {
+    public static void deleteDirectory(final Path directoryToDelete) {
         if (Files.exists(directoryToDelete) && Files.isDirectory(directoryToDelete)) {
             Files.walk(directoryToDelete)
                     .sorted(Comparator.reverseOrder())

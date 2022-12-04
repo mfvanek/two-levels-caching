@@ -29,7 +29,7 @@ public class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
     private CacheType cacheType = CacheType.SIMPLE;
     private Path baseDirectory = getDefaultBaseDirectory();
 
-    private CacheBuilder(Class<V> type) {
+    private CacheBuilder(final Class<V> type) {
         this.type = type;
     }
 
@@ -46,22 +46,22 @@ public class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
         }
     }
 
-    public CacheBuilder<K, V> setMaxSize(int maxCacheSize) {
+    public CacheBuilder<K, V> setMaxSize(final int maxCacheSize) {
         this.maxCacheSize = maxCacheSize;
         return this;
     }
 
-    public CacheBuilder<K, V> setEvictionFactor(float evictionFactor) {
+    public CacheBuilder<K, V> setEvictionFactor(final float evictionFactor) {
         this.evictionFactor = evictionFactor;
         return this;
     }
 
-    public CacheBuilder<K, V> setCacheType(CacheType cacheType) {
+    public CacheBuilder<K, V> setCacheType(final CacheType cacheType) {
         this.cacheType = cacheType;
         return this;
     }
 
-    public CacheBuilder<K, V> setBaseDirectory(Path baseDirectory) {
+    public CacheBuilder<K, V> setBaseDirectory(final Path baseDirectory) {
         this.baseDirectory = baseDirectory;
         return this;
     }

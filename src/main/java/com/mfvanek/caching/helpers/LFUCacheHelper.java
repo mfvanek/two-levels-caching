@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -43,8 +42,10 @@ public class LFUCacheHelper<K> implements Countable<K> {
 
     @Override
     public int getLowestFrequency() {
-        Optional<Integer> minFrequency = frequenciesList.keySet().stream().min(Integer::compareTo);
-        return minFrequency.orElse(0);
+        return frequenciesList.keySet()
+                .stream()
+                .min(Integer::compareTo)
+                .orElse(0);
     }
 
     @Override
