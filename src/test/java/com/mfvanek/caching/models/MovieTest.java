@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MovieTest {
 
     @Test
-    void equals() {
+    void equalsAndHashCodeAdhereContract() {
         final Movie first = Movies.getSnowden();
         final Movie second = Movies.getSnowden();
         final Movie third = Movies.getAquaman();

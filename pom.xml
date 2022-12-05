@@ -169,7 +169,6 @@
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <skip>true</skip> <!-- TODO -->
                     <failOnViolation>true</failOnViolation>
                     <includeTests>true</includeTests>
                     <linkXRef>false</linkXRef>
@@ -181,7 +180,7 @@
                 <executions>
                     <execution>
                         <id>pmd-check</id>
-                        <phase>test</phase>
+                        <phase>process-test-classes</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>

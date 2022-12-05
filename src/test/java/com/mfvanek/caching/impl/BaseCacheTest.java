@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+@SuppressWarnings("PMD.MutableStaticState")
 abstract class BaseCacheTest {
 
     protected static final int MAX_SIZE = 2;

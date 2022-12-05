@@ -12,6 +12,7 @@ import com.mfvanek.caching.enums.CacheType;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 class LFUCacheTest extends BaseLFUCacheTest {
 
     @Override
@@ -30,7 +31,7 @@ class LFUCacheTest extends BaseLFUCacheTest {
     }
 
     private static Cache<String, Movie> createCache(final int maxSize, final float evictionFactor) {
-        return CacheBuilder.getInstance(Movie.class)
+        return CacheBuilder.builder(Movie.class)
                 .setCacheType(CacheType.LFU)
                 .setMaxSize(maxSize)
                 .setEvictionFactor(evictionFactor)

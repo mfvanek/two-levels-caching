@@ -73,6 +73,7 @@ public class LFUCacheHelper<K> implements Countable<K> {
         return frequency;
     }
 
+    @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
     private void removeKeyFromFrequenciesList(final K key, final Integer frequency) {
         final Set<K> keys = frequenciesList.get(frequency);
         if (keys.size() > 1) {

@@ -15,7 +15,7 @@ import com.mfvanek.caching.interfaces.Cacheable;
 import java.io.Serializable;
 import java.nio.file.Path;
 
-public class TwoLevelsCacheBuilder<K, V extends Cacheable<K> & Serializable> {
+public final class TwoLevelsCacheBuilder<K, V extends Cacheable<K> & Serializable> {
 
     private final Class<V> type;
     private int firstLevelMaxSize = CacheBuilder.DEFAULT_MAX_SIZE;
@@ -29,7 +29,7 @@ public class TwoLevelsCacheBuilder<K, V extends Cacheable<K> & Serializable> {
     }
 
     public Cache<K, V> build() {
-        final CacheBuilder<K, V> builder = CacheBuilder.getInstance(type);
+        final CacheBuilder<K, V> builder = CacheBuilder.builder(type);
         final Cache<K, V> firstLevel = builder.setCacheType(CacheType.LFU)
                 .setMaxSize(firstLevelMaxSize)
                 .setEvictionFactor(firstLevelEvictionFactor)
@@ -67,7 +67,7 @@ public class TwoLevelsCacheBuilder<K, V extends Cacheable<K> & Serializable> {
         return this;
     }
 
-    public static <K, V extends Cacheable<K> & Serializable> TwoLevelsCacheBuilder<K, V> getInstance(final Class<V> type) {
+    public static <K, V extends Cacheable<K> & Serializable> TwoLevelsCacheBuilder<K, V> builder(final Class<V> type) {
         return new TwoLevelsCacheBuilder<>(type);
     }
 }

@@ -111,7 +111,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
     @SneakyThrows
     @Override
     public void clear() {
-        for (Map.Entry<K, Path> entry : innerMap.entrySet()) {
+        for (final Map.Entry<K, Path> entry : innerMap.entrySet()) {
             Files.deleteIfExists(entry.getValue());
         }
         innerMap.clear();
@@ -141,6 +141,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
         return helper.getLowestFrequency();
     }
 
+    @SuppressWarnings("PMD.AssignmentInOperand")
     private List<Map.Entry<K, V>> doEviction() {
         // This method will be called only when cache is full
         final List<Map.Entry<K, V>> evictedItems = new LinkedList<>();
