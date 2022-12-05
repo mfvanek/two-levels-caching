@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.impl;
@@ -14,7 +16,6 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -22,24 +23,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> & Serializable>
-        extends AbstractCache<KeyType, ValueType> {
+public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> extends AbstractCache<K, V> {
 
     private static final String EXTENSION = ".ser";
 
-    private final LFUCacheHelper<KeyType> helper;
-    private final Map<KeyType, Path> innerMap;
+    private final LFUCacheHelper<K> helper;
+    private final Map<K, Path> innerMap;
     private final Path baseDirectory;
 
     /**
-     * Creates an instance of @see {PersistenceLFUCache} class
+     * Creates an instance of {@link PersistenceLFUCache} class.
      *
      * @param maxCacheSize   The maximum number of items that can be placed in the cache
      * @param evictionFactor The percentage of items that should be removed from the cache when it is full
      * @param baseDirectory  The directory in which the cached data will be saved. If the directory doesn't exist, it will be created.
      */
     @SneakyThrows
-    public PersistenceLFUCache(Class<ValueType> type, int maxCacheSize, float evictionFactor, Path baseDirectory) {
+    public PersistenceLFUCache(final Class<V> type,
+                               final int maxCacheSize,
+                               final float evictionFactor,
+                               final Path baseDirectory) {
         super(type, maxCacheSize);
         this.helper = new LFUCacheHelper<>(evictionFactor);
         this.innerMap = new HashMap<>(maxCacheSize);
@@ -49,8 +52,8 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) {
-        List<Map.Entry<KeyType, ValueType>> evictedItems = Collections.emptyList();
+    public List<Map.Entry<K, V>> put(final K key, final V value) {
+        List<Map.Entry<K, V>> evictedItems = List.of();
         Path cacheFilePath = innerMap.get(key);
         if (cacheFilePath == null) {
             cacheFilePath = generateSerializedFilePath();
@@ -64,8 +67,8 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public ValueType get(KeyType key) {
-        ValueType value = null;
+    public V get(final K key) {
+        V value = null;
         final Path cacheFilePath = innerMap.get(key);
         if (cacheFilePath != null) {
             value = Serializer.deserialize(getType(), cacheFilePath);
@@ -75,19 +78,19 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public boolean containsKey(KeyType key) {
+    public boolean containsKey(final K key) {
         return innerMap.containsKey(key);
     }
 
     @Override
-    public ValueType remove(KeyType key) {
+    public V remove(final K key) {
         return innerRemove(key).getValue();
     }
 
     @Override
-    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) {
+    public Map.Entry<Integer, V> innerRemove(final K key) {
         Integer frequency = INVALID_FREQUENCY;
-        final ValueType deletedValue = doRemove(key);
+        final V deletedValue = doRemove(key);
         if (deletedValue != null) {
             frequency = helper.removeKeyFromFrequenciesList(key);
         }
@@ -95,8 +98,8 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @SneakyThrows
-    private ValueType doRemove(KeyType key) {
-        ValueType deletedValue = null;
+    private V doRemove(final K key) {
+        V deletedValue = null;
         final Path cacheFilePath = innerMap.remove(key);
         if (cacheFilePath != null) {
             deletedValue = Serializer.deserialize(getType(), cacheFilePath);
@@ -108,7 +111,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     @SneakyThrows
     @Override
     public void clear() {
-        for (Map.Entry<KeyType, Path> entry : innerMap.entrySet()) {
+        for (Map.Entry<K, Path> entry : innerMap.entrySet()) {
             Files.deleteIfExists(entry.getValue());
         }
         innerMap.clear();
@@ -129,7 +132,7 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
     }
 
     @Override
-    public int frequencyOf(KeyType key) {
+    public int frequencyOf(final K key) {
         return helper.frequencyOf(key);
     }
 
@@ -138,16 +141,16 @@ public class PersistenceLFUCache<KeyType, ValueType extends Cacheable<KeyType> &
         return helper.getLowestFrequency();
     }
 
-    private List<Map.Entry<KeyType, ValueType>> doEviction() {
+    private List<Map.Entry<K, V>> doEviction() {
         // This method will be called only when cache is full
-        final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();
+        final List<Map.Entry<K, V>> evictedItems = new LinkedList<>();
         final float target = getCacheMaxSize() * helper.getEvictionFactor();
         int currentlyDeleted = 0;
         while (currentlyDeleted < target) {
-            Iterator<KeyType> it = helper.iteratorForLowestFrequency();
+            final Iterator<K> it = helper.iteratorForLowestFrequency();
             while (it.hasNext() && currentlyDeleted++ < target) {
-                final KeyType key = it.next();
-                final ValueType value = doRemove(key);
+                final K key = it.next();
+                final V value = doRemove(key);
                 helper.removeKeyOnEviction(key);
                 it.remove();
                 evictedItems.add(new AbstractMap.SimpleEntry<>(key, value));

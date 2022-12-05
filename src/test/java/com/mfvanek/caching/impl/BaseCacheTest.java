@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.impl;
@@ -10,17 +12,21 @@ import com.mfvanek.caching.helpers.DirectoryUtils;
 import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 abstract class BaseCacheTest {
 
@@ -30,26 +36,26 @@ abstract class BaseCacheTest {
     protected static final Movie INCEPTION = Movies.getInception();
     protected static final Movie INTERSTELLAR = Movies.getInterstellar();
     protected static final Movie ARRIVAL = Movies.getArrival();
-
-    protected abstract Cache<String, Movie> createCache() throws Exception;
-
-    protected abstract Cache<String, Movie> createCache(int maxSize) throws Exception;
-
     protected static Path tempDir;
 
+    protected abstract Cache<String, Movie> createCache();
+
+    protected abstract Cache<String, Movie> createCache(int maxSize);
+
+    @SneakyThrows
     @BeforeAll
-    static void setUp() throws IOException {
+    static void setUp() {
         tempDir = Files.createTempDirectory("jcache");
     }
 
     @AfterAll
-    static void tearDown() throws IOException {
+    static void tearDown() {
         DirectoryUtils.deleteDirectory(tempDir);
         DirectoryUtils.deleteDirectory(CacheBuilder.getDefaultBaseDirectory());
     }
 
     @Test
-    void size() throws Exception {
+    void size() {
         final Cache<String, Movie> cache = createCache();
         assertEquals(0, cache.size());
 
@@ -64,7 +70,7 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void clear() throws Exception {
+    final void clear() {
         final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
@@ -77,7 +83,7 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void containsKey() throws Exception {
+    final void containsKey() {
         final Cache<String, Movie> cache = createCache(3);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
@@ -89,7 +95,7 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void removeNotExisting() throws Exception {
+    final void removeNotExisting() {
         final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
@@ -103,7 +109,7 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void remove() throws Exception {
+    final void remove() {
         final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
@@ -122,16 +128,17 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void putWithKey() throws Exception {
+    final void putWithKey() {
         final Cache<String, Movie> cache = createCache();
-        List<Map.Entry<String, Movie>> evictedItems = cache.put(SNOWDEN.getIdentifier(), SNOWDEN);
 
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(SNOWDEN.getIdentifier(), SNOWDEN))
+                .isEmpty();
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isTrue();
     }
 
     @Test
-    void putTheSameValue() throws Exception {
+    void putTheSameValue() {
         final Cache<String, Movie> cache = createCache();
         List<Movie> evictedItems = cache.put(SNOWDEN);
         assertEquals(1, cache.size());
@@ -143,12 +150,12 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    void putOnlyValue() throws Exception {
+    void putOnlyValue() {
         fail("You have to override this test");
     }
 
     @Test
-    void get() throws Exception {
+    void get() {
         final Cache<String, Movie> cache = createCache(3);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
@@ -159,7 +166,7 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void getWithNull() throws Exception {
+    final void getWithNull() {
         final Cache<String, Movie> cache = createCache(10);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
@@ -169,7 +176,7 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void getWithNonExistingKey() throws Exception {
+    final void getWithNonExistingKey() {
         final Cache<String, Movie> cache = createCache(1);
         cache.put(AQUAMAN);
 
@@ -177,7 +184,7 @@ abstract class BaseCacheTest {
     }
 
     @Test
-    final void getFromEmptyCache() throws Exception {
+    final void getFromEmptyCache() {
         final Cache<String, Movie> cache = createCache(0);
 
         assertNull(cache.get(Movies.SNOWDEN_IMDB));

@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.helpers;
@@ -23,7 +25,7 @@ import java.nio.file.StandardOpenOption;
 public final class Serializer {
 
     @SneakyThrows
-    public static <ValueType extends Serializable> Path serialize(final ValueType value, final Path cacheFilePath) {
+    public static <V extends Serializable> Path serialize(final V value, final Path cacheFilePath) {
         try (FileChannel channel = FileChannel.open(cacheFilePath, StandardOpenOption.WRITE,
                 StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
              ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -35,7 +37,7 @@ public final class Serializer {
     }
 
     @SneakyThrows
-    public static <ValueType extends Serializable> ValueType deserialize(final Class<ValueType> type, final Path cacheFilePath) {
+    public static <V extends Serializable> V deserialize(final Class<V> type, final Path cacheFilePath) {
         final byte[] data = Files.readAllBytes(cacheFilePath);
         try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data))) {
             return type.cast(ois.readObject());

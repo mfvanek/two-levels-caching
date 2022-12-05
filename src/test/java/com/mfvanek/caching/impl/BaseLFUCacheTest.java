@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.impl;
@@ -12,39 +14,41 @@ import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class BaseLFUCacheTest extends BaseCacheTest {
 
-    protected static Countable<String> asCountable(final Cache<String, Movie> cache)
-            throws ClassCastException {
+    @SuppressWarnings("unchecked")
+    protected static Countable<String> asCountable(final Cache<String, Movie> cache) {
         if (cache instanceof Countable) {
-            //noinspection unchecked
             return (Countable<String>) cache;
         }
-        throw new ClassCastException();
+        throw new ClassCastException(cache.getClass().toString());
     }
 
     private static CacheExtended<String, Movie> asExtended(final Cache<String, Movie> cache)
             throws ClassCastException {
         if (cache instanceof CacheExtended) {
-            //noinspection unchecked
             return (CacheExtended<String, Movie>) cache;
         }
         throw new ClassCastException();
     }
 
-    protected abstract Cache<String, Movie> createCache(float evictionFactor) throws Exception;
+    protected abstract Cache<String, Movie> createCache(float evictionFactor);
 
     @Test
     @Override
-    final void putTheSameValue() throws Exception {
+    final void putTheSameValue() {
         final Cache<String, Movie> cache = createCache(1.0f);
         final Countable<String> countable = asCountable(cache);
         List<Movie> evictedItems = cache.put(SNOWDEN);
@@ -60,7 +64,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
 
     @Test
     @Override
-    final void putOnlyValue() throws Exception {
+    final void putOnlyValue() {
         final Cache<String, Movie> cache = createCache(1.0f);
         final Countable<String> countable = asCountable(cache);
 
@@ -77,13 +81,13 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
         evictedItems = cache.put(INCEPTION);
         assertEquals(1, cache.size());
         assertEquals(2, evictedItems.size());
-        assertIterableEquals(Arrays.asList(SNOWDEN, AQUAMAN), evictedItems);
+        assertIterableEquals(List.of(SNOWDEN, AQUAMAN), evictedItems);
         assertTrue(cache.containsKey(Movies.INCEPTION_IMDB));
         assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
     }
 
     @Test
-    final void evictionWithDifferentFrequencies() throws Exception {
+    final void evictionWithDifferentFrequencies() {
         final Cache<String, Movie> cache = createCache(1.0f);
         final Countable<String> countable = asCountable(cache);
 
@@ -107,7 +111,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
 
     @Test
     @Override
-    void get() throws Exception {
+    void get() {
         final Cache<String, Movie> cache = createCache();
         final Countable<String> countable = asCountable(cache);
         cache.put(SNOWDEN);
@@ -130,7 +134,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
         assertEquals(2, countable.frequencyOf(Movies.SNOWDEN_IMDB));
         assertEquals(1, countable.frequencyOf(Movies.INCEPTION_IMDB));
 
-        List<Movie> evictedItems = cache.put(AQUAMAN);
+        final List<Movie> evictedItems = cache.put(AQUAMAN);
         assertEquals(2, cache.size());
         assertEquals(2, countable.frequencyOf(Movies.SNOWDEN_IMDB));
         assertEquals(0, countable.frequencyOf(Movies.AQUAMAN_IMDB));
@@ -139,7 +143,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     }
 
     @Test
-    final void innerRemoveNotExisting() throws Exception {
+    final void innerRemoveNotExisting() {
         final CacheExtended<String, Movie> cache = asExtended(createCache());
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
@@ -155,7 +159,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     }
 
     @Test
-    final void innerRemove() throws Exception {
+    final void innerRemove() {
         // Arrange
         final CacheExtended<String, Movie> cache = asExtended(createCache());
         cache.put(SNOWDEN);

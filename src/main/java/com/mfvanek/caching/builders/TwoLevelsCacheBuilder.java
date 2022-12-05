@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.builders;
@@ -14,55 +16,59 @@ import com.mfvanek.caching.interfaces.Cacheable;
 import java.io.Serializable;
 import java.nio.file.Path;
 
-public class TwoLevelsCacheBuilder<KeyType, ValueType extends Cacheable<KeyType> & Serializable> {
+public class TwoLevelsCacheBuilder<K, V extends Cacheable<K> & Serializable> {
 
-    private final Class<ValueType> type;
+    private final Class<V> type;
     private int firstLevelMaxSize = CacheBuilder.DEFAULT_MAX_SIZE;
     private int secondLevelMaxSize = CacheBuilder.DEFAULT_MAX_SIZE;
     private float firstLevelEvictionFactor = CacheBuilder.DEFAULT_EVICTION_FACTOR;
     private float secondLevelEvictionFactor = CacheBuilder.DEFAULT_EVICTION_FACTOR;
     private Path baseDirectory = CacheBuilder.getDefaultBaseDirectory();
 
-    private TwoLevelsCacheBuilder(Class<ValueType> type) {
+    private TwoLevelsCacheBuilder(final Class<V> type) {
         this.type = type;
     }
 
-    public Cache<KeyType, ValueType> build() {
-        final  CacheBuilder<KeyType, ValueType> builder = CacheBuilder.getInstance(type);
-        final CacheExtended<KeyType, ValueType> firstLevel = builder.setCacheType(CacheType.LFU).
-                setMaxSize(firstLevelMaxSize).setEvictionFactor(firstLevelEvictionFactor).build();
-        final CacheExtended<KeyType, ValueType> secondLevel = builder.setCacheType(CacheType.PERSISTENCE_LFU).
-                setMaxSize(secondLevelMaxSize).setEvictionFactor(secondLevelEvictionFactor).
-                setBaseDirectory(baseDirectory).build();
+    public Cache<K, V> build() {
+        final CacheBuilder<K, V> builder = CacheBuilder.getInstance(type);
+        final CacheExtended<K, V> firstLevel = builder.setCacheType(CacheType.LFU)
+                .setMaxSize(firstLevelMaxSize)
+                .setEvictionFactor(firstLevelEvictionFactor)
+                .build();
+        final CacheExtended<K, V> secondLevel = builder.setCacheType(CacheType.PERSISTENCE_LFU)
+                .setMaxSize(secondLevelMaxSize)
+                .setEvictionFactor(secondLevelEvictionFactor)
+                .setBaseDirectory(baseDirectory)
+                .build();
         return new TwoLevelsCache<>(firstLevel, secondLevel);
     }
 
-    public TwoLevelsCacheBuilder<KeyType, ValueType> setFirstLevelMaxSize(int maxCacheSize) {
+    public TwoLevelsCacheBuilder<K, V> setFirstLevelMaxSize(final int maxCacheSize) {
         this.firstLevelMaxSize = maxCacheSize;
         return this;
     }
 
-    public TwoLevelsCacheBuilder<KeyType, ValueType> setFirstLevelEvictionFactor(float evictionFactor) {
+    public TwoLevelsCacheBuilder<K, V> setFirstLevelEvictionFactor(final float evictionFactor) {
         this.firstLevelEvictionFactor = evictionFactor;
         return this;
     }
 
-    public TwoLevelsCacheBuilder<KeyType, ValueType> setSecondLevelMaxSize(int maxCacheSize) {
+    public TwoLevelsCacheBuilder<K, V> setSecondLevelMaxSize(final int maxCacheSize) {
         this.secondLevelMaxSize = maxCacheSize;
         return this;
     }
 
-    public TwoLevelsCacheBuilder<KeyType, ValueType> setSecondLevelEvictionFactor(float evictionFactor) {
+    public TwoLevelsCacheBuilder<K, V> setSecondLevelEvictionFactor(final float evictionFactor) {
         this.secondLevelEvictionFactor = evictionFactor;
         return this;
     }
 
-    public TwoLevelsCacheBuilder<KeyType, ValueType> setBaseDirectory(Path baseDirectory) {
+    public TwoLevelsCacheBuilder<K, V> setBaseDirectory(final Path baseDirectory) {
         this.baseDirectory = baseDirectory;
         return this;
     }
 
-    public static <KeyType, ValueType extends Cacheable<KeyType>& Serializable> TwoLevelsCacheBuilder<KeyType, ValueType> getInstance(Class<ValueType> type) {
+    public static <K, V extends Cacheable<K> & Serializable> TwoLevelsCacheBuilder<K, V> getInstance(final Class<V> type) {
         return new TwoLevelsCacheBuilder<>(type);
     }
 }

@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.impl;
@@ -9,7 +11,6 @@ import com.mfvanek.caching.helpers.LFUCacheHelper;
 import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -18,24 +19,24 @@ import java.util.Map;
 
 /**
  * Thread unsafe implementation of LFU cache (Least Frequently Used).
+ *
+ * @param <K> key type
+ * @param <V> value type, should be {@link Cacheable}
  * @see <a href="https://en.wikipedia.org/wiki/Least_frequently_used">https://en.wikipedia.org/wiki/Least_frequently_used</a>
- * @param <KeyType>
- * @param <ValueType>
  */
-public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
-        extends AbstractMapCache<KeyType, ValueType> {
+public class LFUCache<K, V extends Cacheable<K>> extends AbstractMapCache<K, V> {
 
-    private final LFUCacheHelper<KeyType> helper;
+    private final LFUCacheHelper<K> helper;
 
-    public LFUCache(Class<ValueType> type, int maxCacheSize, float evictionFactor) {
+    public LFUCache(final Class<V> type, final int maxCacheSize, final float evictionFactor) {
         super(type, maxCacheSize, new HashMap<>(maxCacheSize));
         helper = new LFUCacheHelper<>(evictionFactor);
     }
 
     @Override
-    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) {
-        List<Map.Entry<KeyType, ValueType>> evictedItems = Collections.emptyList();
-        final ValueType currentValue = getInnerMap().get(key);
+    public List<Map.Entry<K, V>> put(final K key, final V value) {
+        List<Map.Entry<K, V>> evictedItems = List.of();
+        final V currentValue = getInnerMap().get(key);
         if (currentValue == null) {
             if (isCacheMaxSizeReached()) {
                 evictedItems = doEviction();
@@ -47,8 +48,8 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
     }
 
     @Override
-    public ValueType get(KeyType key) {
-        final ValueType value = super.get(key);
+    public V get(final K key) {
+        final V value = super.get(key);
         if (value != null) {
             helper.updateFrequency(key);
         }
@@ -56,14 +57,14 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
     }
 
     @Override
-    public ValueType remove(KeyType key) {
+    public V remove(final K key) {
         return innerRemove(key).getValue();
     }
 
     @Override
-    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) {
+    public Map.Entry<Integer, V> innerRemove(final K key) {
         Integer frequency = INVALID_FREQUENCY;
-        final ValueType deletedValue = super.remove(key);
+        final V deletedValue = super.remove(key);
         if (deletedValue != null) {
             frequency = helper.removeKeyFromFrequenciesList(key);
         }
@@ -77,7 +78,7 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
     }
 
     @Override
-    public int frequencyOf(KeyType key) {
+    public int frequencyOf(final K key) {
         return helper.frequencyOf(key);
     }
 
@@ -86,16 +87,16 @@ public class LFUCache<KeyType, ValueType extends Cacheable<KeyType>>
         return helper.getLowestFrequency();
     }
 
-    private List<Map.Entry<KeyType, ValueType>> doEviction() {
+    private List<Map.Entry<K, V>> doEviction() {
         // This method will be called only when cache is full
-        final List<Map.Entry<KeyType, ValueType>> evictedItems = new LinkedList<>();
+        final List<Map.Entry<K, V>> evictedItems = new LinkedList<>();
         final float target = getCacheMaxSize() * helper.getEvictionFactor();
         int currentlyDeleted = 0;
         while (currentlyDeleted < target) {
-            Iterator<KeyType> it = helper.iteratorForLowestFrequency();
+            final Iterator<K> it = helper.iteratorForLowestFrequency();
             while (it.hasNext() && currentlyDeleted++ < target) {
-                final KeyType key = it.next();
-                final ValueType value = super.remove(key);
+                final K key = it.next();
+                final V value = super.remove(key);
                 helper.removeKeyOnEviction(key);
                 it.remove();
                 evictedItems.add(new AbstractMap.SimpleEntry<>(key, value));

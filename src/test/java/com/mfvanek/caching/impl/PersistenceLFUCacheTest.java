@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.impl;
@@ -20,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class PersistenceLFUCacheTest extends BaseLFUCacheTest {
 
     @Test
-    void usingDefaultDirectory() throws Exception {
+    void usingDefaultDirectory() {
         final Cache<String, Movie> cache = createCacheDefaultDirectory();
         final Countable<String> countable = asCountable(cache);
         List<Movie> evictedItems = cache.put(SNOWDEN);
@@ -32,37 +34,39 @@ class PersistenceLFUCacheTest extends BaseLFUCacheTest {
         assertEquals(0, countable.frequencyOf(Movies.SNOWDEN_IMDB));
         assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
 
-        Movie value = cache.get(Movies.SNOWDEN_IMDB);
+        final Movie value = cache.get(Movies.SNOWDEN_IMDB);
         assertEquals(SNOWDEN, value);
         assertEquals(1, countable.frequencyOf(Movies.SNOWDEN_IMDB));
         assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
     }
 
     @Override
-    protected Cache<String, Movie> createCache() throws Exception {
+    protected Cache<String, Movie> createCache() {
         return createCache(0.1f);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(int maxSize) throws Exception {
+    protected Cache<String, Movie> createCache(final int maxSize) {
         return createCache(maxSize, 0.1f, true);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(float evictionFactor) throws Exception {
+    protected Cache<String, Movie> createCache(final float evictionFactor) {
         return createCache(MAX_SIZE, evictionFactor, true);
     }
 
-    private static Cache<String, Movie> createCache(int maxSize, float evictionFactor, boolean useTmpDir) {
-        final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance(Movie.class);
-        builder.setCacheType(CacheType.PERSISTENCE_LFU).setMaxSize(maxSize).setEvictionFactor(evictionFactor);
+    private static Cache<String, Movie> createCache(final int maxSize, final float evictionFactor, final boolean useTmpDir) {
+        final CacheBuilder<String, Movie> builder = CacheBuilder.getInstance(Movie.class)
+                .setCacheType(CacheType.PERSISTENCE_LFU)
+                .setMaxSize(maxSize)
+                .setEvictionFactor(evictionFactor);
         if (useTmpDir) {
             builder.setBaseDirectory(tempDir);
         }
         return builder.build();
     }
 
-    private static Cache<String, Movie> createCacheDefaultDirectory() throws Exception {
+    private static Cache<String, Movie> createCacheDefaultDirectory() {
         return createCache(MAX_SIZE, 0.1f, false);
     }
 }

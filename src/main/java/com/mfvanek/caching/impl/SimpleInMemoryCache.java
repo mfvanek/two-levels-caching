@@ -1,6 +1,8 @@
 /*
- * Copyright (c) 2018. Ivan Vakhrushev. All rights reserved.
- * https://github.com/mfvanek
+ * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.
+ * https://github.com/mfvanek/two-levels-caching
+ *
+ * Licensed under the Apache License 2.0
  */
 
 package com.mfvanek.caching.impl;
@@ -8,42 +10,41 @@ package com.mfvanek.caching.impl;
 import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * The simplest thread unsafe implementation of in-memory cache
- * @param <KeyType>
- * @param <ValueType>
+ * The simplest thread unsafe implementation of in-memory cache.
+ *
+ * @param <K> key type
+ * @param <V> value type, should be {@link Cacheable}
  */
-public final class SimpleInMemoryCache<KeyType, ValueType extends Cacheable<KeyType>>
-        extends AbstractMapCache<KeyType, ValueType> {
+public final class SimpleInMemoryCache<K, V extends Cacheable<K>> extends AbstractMapCache<K, V> {
 
-    public SimpleInMemoryCache(Class<ValueType> type, int maxCacheSize) {
+    public SimpleInMemoryCache(final Class<V> type, final int maxCacheSize) {
         super(type, maxCacheSize, new LinkedHashMap<>(maxCacheSize) {
             @Override
-            protected boolean removeEldestEntry(Map.Entry<KeyType, ValueType> eldest) {
+            protected boolean removeEldestEntry(final Map.Entry<K, V> eldest) {
                 return size() > maxCacheSize;
             }
         });
     }
 
     @Override
-    public List<Map.Entry<KeyType, ValueType>> put(KeyType key, ValueType value) {
+    public List<Map.Entry<K, V>> put(final K key, final V value) {
         getInnerMap().put(key, value);
         // In this case we always return an empty list because we don't control eviction from the cache
-        return Collections.emptyList();
+        return List.of();
     }
 
     @Override
-    public Map.Entry<Integer, ValueType> innerRemove(KeyType key) {
+    public Map.Entry<Integer, V> innerRemove(final K key) {
         return new AbstractMap.SimpleEntry<>(INVALID_FREQUENCY, remove(key));
     }
 
     @Override
-    public int frequencyOf(KeyType key) {
+    public int frequencyOf(final K key) {
         return INVALID_FREQUENCY;
     }
 
