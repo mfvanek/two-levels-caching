@@ -10,34 +10,35 @@ package com.mfvanek.caching.impl;
 import com.mfvanek.caching.builders.CacheBuilder;
 import com.mfvanek.caching.enums.CacheType;
 import com.mfvanek.caching.interfaces.Cache;
-import com.mfvanek.caching.interfaces.Countable;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class PersistenceLFUCacheTest extends BaseLFUCacheTest {
 
     @Test
     void usingDefaultDirectory() {
         final Cache<String, Movie> cache = createCacheDefaultDirectory();
-        final Countable<String> countable = asCountable(cache);
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
 
-        evictedItems = cache.put(INCEPTION);
-        assertEquals(0, evictedItems.size());
-        assertEquals(2, cache.size());
-        assertEquals(0, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
+        assertThat(cache.put(INCEPTION))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isZero();
+        assertThat(cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isZero();
 
-        final Movie value = cache.get(Movies.SNOWDEN_IMDB);
-        assertEquals(SNOWDEN, value);
-        assertEquals(1, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
+        assertThat(cache.get(Movies.SNOWDEN_IMDB))
+                .isEqualTo(SNOWDEN);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isEqualTo(1);
+        assertThat(cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isZero();
     }
 
     @Override

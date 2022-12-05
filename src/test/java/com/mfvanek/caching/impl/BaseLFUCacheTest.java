@@ -8,40 +8,23 @@
 package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.interfaces.Cache;
-import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Countable;
 import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 abstract class BaseLFUCacheTest extends BaseCacheTest {
 
-    @SuppressWarnings("unchecked")
-    protected static Countable<String> asCountable(final Cache<String, Movie> cache) {
-        if (cache instanceof Countable) {
-            return (Countable<String>) cache;
+    private static AbstractCache<String, Movie> asAbstractCache(final Cache<String, Movie> cache) {
+        if (cache instanceof AbstractCache) {
+            return (AbstractCache<String, Movie>) cache;
         }
         throw new ClassCastException(cache.getClass().toString());
-    }
-
-    private static CacheExtended<String, Movie> asExtended(final Cache<String, Movie> cache)
-            throws ClassCastException {
-        if (cache instanceof CacheExtended) {
-            return (CacheExtended<String, Movie>) cache;
-        }
-        throw new ClassCastException();
     }
 
     protected abstract Cache<String, Movie> createCache(float evictionFactor);
@@ -50,138 +33,182 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     @Override
     final void putTheSameValue() {
         final Cache<String, Movie> cache = createCache(1.0f);
-        final Countable<String> countable = asCountable(cache);
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
-        assertEquals(0, countable.frequencyOf(Movies.SNOWDEN_IMDB));
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(1);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isZero();
 
-        evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
-        assertEquals(0, countable.frequencyOf(Movies.SNOWDEN_IMDB));
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(1);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isZero();
     }
 
     @Test
     @Override
     final void putOnlyValue() {
         final Cache<String, Movie> cache = createCache(1.0f);
-        final Countable<String> countable = asCountable(cache);
 
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(1);
 
-        evictedItems = cache.put(AQUAMAN);
-        assertEquals(2, cache.size());
-        assertEquals(0, evictedItems.size());
-        assertEquals(0, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.AQUAMAN_IMDB));
+        assertThat(cache.put(AQUAMAN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isZero();
+        assertThat(cache.frequencyOf(Movies.AQUAMAN_IMDB))
+                .isZero();
 
-        evictedItems = cache.put(INCEPTION);
-        assertEquals(1, cache.size());
-        assertEquals(2, evictedItems.size());
-        assertIterableEquals(List.of(SNOWDEN, AQUAMAN), evictedItems);
-        assertTrue(cache.containsKey(Movies.INCEPTION_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
+        assertThat(cache.put(INCEPTION))
+                .hasSize(2)
+                .containsExactlyInAnyOrder(SNOWDEN, AQUAMAN);
+        assertThat(cache.size())
+                .isEqualTo(1);
+        assertThat(cache.containsKey(Movies.INCEPTION_IMDB))
+                .isTrue();
+        assertThat(cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isZero();
     }
 
     @Test
     final void evictionWithDifferentFrequencies() {
         final Cache<String, Movie> cache = createCache(1.0f);
-        final Countable<String> countable = asCountable(cache);
 
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
-        assertNotNull(cache.get(Movies.SNOWDEN_IMDB));
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(1);
+        assertThat(cache.get(Movies.SNOWDEN_IMDB))
+                .isEqualTo(SNOWDEN);
 
-        evictedItems = cache.put(AQUAMAN);
-        assertEquals(2, cache.size());
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(AQUAMAN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(2);
 
-        assertEquals(1, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.AQUAMAN_IMDB));
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isEqualTo(1);
+        assertThat(cache.frequencyOf(Movies.AQUAMAN_IMDB))
+                .isZero();
 
-        evictedItems = cache.put(INTERSTELLAR);
-        assertEquals(1, cache.size());
-        assertEquals(2, evictedItems.size());
-        assertThat(evictedItems, containsInAnyOrder(SNOWDEN, AQUAMAN));
+        assertThat(cache.put(INTERSTELLAR))
+                .hasSize(2)
+                .containsExactlyInAnyOrder(SNOWDEN, AQUAMAN);
+        assertThat(cache.size())
+                .isEqualTo(1);
     }
 
     @Test
     @Override
     void get() {
         final Cache<String, Movie> cache = createCache();
-        final Countable<String> countable = asCountable(cache);
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
-        assertEquals(2, cache.size());
-        assertEquals(0, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isZero();
+        assertThat(cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isZero();
 
-        Movie value = cache.get(Movies.SNOWDEN_IMDB);
-        assertEquals(SNOWDEN, value);
-        assertEquals(1, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.INCEPTION_IMDB));
+        assertThat(cache.get(Movies.SNOWDEN_IMDB))
+                .isEqualTo(SNOWDEN);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isEqualTo(1);
+        assertThat(cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isZero();
 
-        value = cache.get(Movies.INCEPTION_IMDB);
-        assertEquals(INCEPTION, value);
-        assertEquals(1, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(1, countable.frequencyOf(Movies.INCEPTION_IMDB));
+        assertThat(cache.get(Movies.INCEPTION_IMDB))
+                .isEqualTo(INCEPTION);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isEqualTo(1);
+        assertThat(cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isEqualTo(1);
 
-        cache.get(Movies.SNOWDEN_IMDB);
-        assertEquals(2, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(1, countable.frequencyOf(Movies.INCEPTION_IMDB));
+        assertThat(cache.get(Movies.SNOWDEN_IMDB))
+                .isEqualTo(SNOWDEN);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isEqualTo(2);
+        assertThat(cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isEqualTo(1);
 
-        final List<Movie> evictedItems = cache.put(AQUAMAN);
-        assertEquals(2, cache.size());
-        assertEquals(2, countable.frequencyOf(Movies.SNOWDEN_IMDB));
-        assertEquals(0, countable.frequencyOf(Movies.AQUAMAN_IMDB));
-        assertEquals(1, evictedItems.size());
-        assertEquals(INCEPTION, evictedItems.get(0));
+        assertThat(cache.put(AQUAMAN))
+                .hasSize(1)
+                .containsExactlyInAnyOrder(INCEPTION);
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isEqualTo(2);
+        assertThat(cache.frequencyOf(Movies.AQUAMAN_IMDB))
+                .isZero();
+        assertThatThrownBy(() -> cache.frequencyOf(Movies.INCEPTION_IMDB))
+                .isInstanceOf(NoSuchElementException.class)
+                .hasMessage("Key tt1375666 not found in the cache");
     }
 
     @Test
     final void innerRemoveNotExisting() {
-        final CacheExtended<String, Movie> cache = asExtended(createCache());
+        final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
-        assertEquals(MAX_SIZE, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(2);
 
-        final Map.Entry<Integer, Movie> deleted = cache.innerRemove("not existing key");
-        assertNotNull(deleted);
-        assertEquals(CacheExtended.INVALID_FREQUENCY, deleted.getKey());
-        assertNull(deleted.getValue());
-        assertEquals(MAX_SIZE, cache.size());
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertTrue(cache.containsKey(Movies.AQUAMAN_IMDB));
+        assertThat(asAbstractCache(cache).innerRemove("not existing key"))
+                .isNotNull()
+                .satisfies(e -> {
+                    assertThat(e.getKey()).isEqualTo(Countable.INVALID_FREQUENCY);
+                    assertThat(e.getValue()).isNull();
+                });
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isTrue();
+        assertThat(cache.containsKey(Movies.AQUAMAN_IMDB))
+                .isTrue();
     }
 
     @Test
     final void innerRemove() {
-        // Arrange
-        final CacheExtended<String, Movie> cache = asExtended(createCache());
+        final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
         cache.get(Movies.SNOWDEN_IMDB);
-        assertEquals(MAX_SIZE, cache.size());
-        assertEquals(1, cache.frequencyOf(Movies.SNOWDEN_IMDB));
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.frequencyOf(Movies.SNOWDEN_IMDB))
+                .isEqualTo(1);
 
-        // Act
-        Map.Entry<Integer, Movie> deleted = cache.innerRemove(Movies.AQUAMAN_IMDB);
-        assertNotNull(deleted);
-        assertEquals(Integer.valueOf(0), deleted.getKey());
-        assertEquals(AQUAMAN, deleted.getValue());
-        assertEquals(1, cache.size());
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertFalse(cache.containsKey(Movies.AQUAMAN_IMDB));
+        assertThat(asAbstractCache(cache).innerRemove(Movies.AQUAMAN_IMDB))
+                .isNotNull()
+                .satisfies(e -> {
+                    assertThat(e.getKey()).isEqualTo(0);
+                    assertThat(e.getValue()).isEqualTo(AQUAMAN);
+                });
+        assertThat(cache.size())
+                .isEqualTo(1);
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isTrue();
+        assertThat(cache.containsKey(Movies.AQUAMAN_IMDB))
+                .isFalse();
 
-        deleted = cache.innerRemove(Movies.SNOWDEN_IMDB);
-        assertNotNull(deleted);
-        assertEquals(Integer.valueOf(1), deleted.getKey());
-        assertEquals(SNOWDEN, deleted.getValue());
-        assertEquals(0, cache.size());
-        assertFalse(cache.containsKey(Movies.SNOWDEN_IMDB));
+        assertThat(asAbstractCache(cache).innerRemove(Movies.SNOWDEN_IMDB))
+                .isNotNull()
+                .satisfies(e -> {
+                    assertThat(e.getKey()).isEqualTo(1);
+                    assertThat(e.getValue()).isEqualTo(SNOWDEN);
+                });
+        assertThat(cache.size())
+                .isZero();
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isFalse();
     }
 }

@@ -7,7 +7,7 @@
 
 package com.mfvanek.caching.impl;
 
-import com.mfvanek.caching.interfaces.CacheExtended;
+import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.interfaces.Cacheable;
 
 import java.util.List;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @param <K> key type
  * @param <V> value type, should be {@link Cacheable}
  */
-abstract class AbstractCache<K, V extends Cacheable<K>> implements CacheExtended<K, V> {
+abstract class AbstractCache<K, V extends Cacheable<K>> implements Cache<K, V> {
 
     private final Class<V> type;
     private final int maxCacheSize;
@@ -43,4 +43,6 @@ abstract class AbstractCache<K, V extends Cacheable<K>> implements CacheExtended
         final List<Map.Entry<K, V>> evictedItems = this.put(value.getIdentifier(), value);
         return evictedItems.stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
+
+    protected abstract Map.Entry<Integer, V> innerRemove(K key);
 }

@@ -9,6 +9,8 @@ package com.mfvanek.caching.interfaces;
 
 public interface Countable<K> {
 
+    Integer INVALID_FREQUENCY = -1;
+
     int frequencyOf(K key);
 
     int getLowestFrequency();

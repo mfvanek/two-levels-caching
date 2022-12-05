@@ -88,7 +88,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
     }
 
     @Override
-    public Map.Entry<Integer, V> innerRemove(final K key) {
+    protected Map.Entry<Integer, V> innerRemove(final K key) {
         Integer frequency = INVALID_FREQUENCY;
         final V deletedValue = doRemove(key);
         if (deletedValue != null) {

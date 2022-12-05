@@ -227,8 +227,6 @@
         </module>
         <module name="UnusedImports"/>
         <module name="RedundantImport"/>
-
-        <!-- TODO
         <module name="IllegalImport">
             <property name="regexp" value="true"/>
             <property name="illegalClasses"
@@ -240,8 +238,6 @@
                 ^org\.springframework\.test\.web\.servlet\.MockMvc"/>
             <property name="illegalPkgs" value="^org\.hamcrest"/>
         </module>
-        -->
-
         <module name="MethodParamPad"/>
         <module name="NoWhitespaceBefore"/>
         <module name="NoWhitespaceBeforeCaseDefaultColon"/>

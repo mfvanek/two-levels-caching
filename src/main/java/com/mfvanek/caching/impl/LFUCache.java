@@ -62,7 +62,7 @@ public class LFUCache<K, V extends Cacheable<K>> extends AbstractMapCache<K, V> 
     }
 
     @Override
-    public Map.Entry<Integer, V> innerRemove(final K key) {
+    protected Map.Entry<Integer, V> innerRemove(final K key) {
         Integer frequency = INVALID_FREQUENCY;
         final V deletedValue = super.remove(key);
         if (deletedValue != null) {

@@ -8,7 +8,6 @@
 package com.mfvanek.caching.impl;
 
 import com.mfvanek.caching.interfaces.Cache;
-import com.mfvanek.caching.interfaces.CacheExtended;
 import com.mfvanek.caching.interfaces.Cacheable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,11 +21,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements Cache<K, V> {
 
-    private final CacheExtended<K, V> firstLevel;
-    private final CacheExtended<K, V> secondLevel;
+    private final Cache<K, V> firstLevel;
+    private final Cache<K, V> secondLevel;
 
-    public TwoLevelsCache(final CacheExtended<K, V> firstLevel,
-                          final CacheExtended<K, V> secondLevel) {
+    public TwoLevelsCache(final Cache<K, V> firstLevel,
+                          final Cache<K, V> secondLevel) {
         this.firstLevel = firstLevel;
         this.secondLevel = secondLevel;
     }
@@ -137,5 +136,15 @@ public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements
     @Override
     public int size() {
         return firstLevel.size() + secondLevel.size();
+    }
+
+    @Override
+    public int frequencyOf(final K key) {
+        return firstLevel.frequencyOf(key) + secondLevel.frequencyOf(key);
+    }
+
+    @Override
+    public int getLowestFrequency() {
+        return Math.min(firstLevel.getLowestFrequency(), secondLevel.getLowestFrequency());
     }
 }

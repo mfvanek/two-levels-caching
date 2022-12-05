@@ -39,7 +39,7 @@ public final class SimpleInMemoryCache<K, V extends Cacheable<K>> extends Abstra
     }
 
     @Override
-    public Map.Entry<Integer, V> innerRemove(final K key) {
+    protected Map.Entry<Integer, V> innerRemove(final K key) {
         return new AbstractMap.SimpleEntry<>(INVALID_FREQUENCY, remove(key));
     }
 
