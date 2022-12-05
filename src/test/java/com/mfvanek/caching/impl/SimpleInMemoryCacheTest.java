@@ -13,31 +13,25 @@ import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class SimpleInMemoryCacheTest extends BaseCacheTest {
 
     @Test
     @Override
     void putOnlyValue() {
-        // Arrange
         final Cache<String, Movie> cache = createCache();
 
-        // Act
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-
-        // Assert
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertEquals(0, evictedItems.size());
-
-        evictedItems = cache.put(AQUAMAN);
-        assertEquals(0, evictedItems.size());
-
-        evictedItems = cache.put(INCEPTION);
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isTrue();
+        assertThat(cache.put(AQUAMAN))
+                .isEmpty();
+        assertThat(cache.put(INCEPTION))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(2);
     }
 
     @Override

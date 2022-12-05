@@ -19,14 +19,9 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.fail;
 
 abstract class BaseCacheTest {
 
@@ -57,16 +52,20 @@ abstract class BaseCacheTest {
     @Test
     void size() {
         final Cache<String, Movie> cache = createCache();
-        assertEquals(0, cache.size());
+        assertThat(cache.size())
+                .isZero();
 
         cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(1);
 
         cache.put(AQUAMAN);
-        assertEquals(MAX_SIZE, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(2);
 
         cache.put(INCEPTION);
-        assertEquals(MAX_SIZE, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(2);
     }
 
     @Test
@@ -74,12 +73,16 @@ abstract class BaseCacheTest {
         final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
-        assertEquals(MAX_SIZE, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(2);
 
         cache.clear();
-        assertEquals(0, cache.size());
-        assertFalse(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertFalse(cache.containsKey(Movies.AQUAMAN_IMDB));
+        assertThat(cache.size())
+                .isZero();
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isFalse();
+        assertThat(cache.containsKey(Movies.AQUAMAN_IMDB))
+                .isFalse();
     }
 
     @Test
@@ -89,9 +92,12 @@ abstract class BaseCacheTest {
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
 
-        assertFalse(cache.containsKey(null));
-        assertFalse(cache.containsKey(""));
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
+        assertThat(cache.containsKey(null))
+                .isFalse();
+        assertThat(cache.containsKey(""))
+                .isFalse();
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isTrue();
     }
 
     @Test
@@ -99,13 +105,17 @@ abstract class BaseCacheTest {
         final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
-        assertEquals(MAX_SIZE, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(2);
 
-        final Movie deleted = cache.remove("not existing key");
-        assertEquals(MAX_SIZE, cache.size());
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertTrue(cache.containsKey(Movies.AQUAMAN_IMDB));
-        assertNull(deleted);
+        assertThat(cache.remove("not existing key"))
+                .isNull();
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isTrue();
+        assertThat(cache.containsKey(Movies.AQUAMAN_IMDB))
+                .isTrue();
     }
 
     @Test
@@ -113,18 +123,24 @@ abstract class BaseCacheTest {
         final Cache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
-        assertEquals(MAX_SIZE, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(2);
 
-        Movie deleted = cache.remove(Movies.AQUAMAN_IMDB);
-        assertEquals(1, cache.size());
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertFalse(cache.containsKey(Movies.AQUAMAN_IMDB));
-        assertEquals(AQUAMAN, deleted);
+        assertThat(cache.remove(Movies.AQUAMAN_IMDB))
+                .isEqualTo(AQUAMAN);
+        assertThat(cache.size())
+                .isEqualTo(1);
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isTrue();
+        assertThat(cache.containsKey(Movies.AQUAMAN_IMDB))
+                .isFalse();
 
-        deleted = cache.remove(Movies.SNOWDEN_IMDB);
-        assertEquals(0, cache.size());
-        assertFalse(cache.containsKey(Movies.SNOWDEN_IMDB));
-        assertEquals(SNOWDEN, deleted);
+        assertThat(cache.remove(Movies.SNOWDEN_IMDB))
+                .isEqualTo(SNOWDEN);
+        assertThat(cache.size())
+                .isZero();
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .isFalse();
     }
 
     @Test
@@ -140,13 +156,16 @@ abstract class BaseCacheTest {
     @Test
     void putTheSameValue() {
         final Cache<String, Movie> cache = createCache();
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(1);
 
-        evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
+        // put the same value again
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(1);
     }
 
     @Test
@@ -161,8 +180,12 @@ abstract class BaseCacheTest {
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
 
-        assertNull(cache.get(null));
-        assertEquals(INCEPTION, cache.get(Movies.INCEPTION_IMDB));
+        assertThat(cache.size())
+                .isEqualTo(3);
+        assertThat(cache.get(null))
+                .isNull();
+        assertThat(cache.get(Movies.INCEPTION_IMDB))
+                .isEqualTo(INCEPTION);
     }
 
     @Test
@@ -172,7 +195,10 @@ abstract class BaseCacheTest {
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
 
-        assertNull(cache.get(null));
+        assertThat(cache.size())
+                .isEqualTo(3);
+        assertThat(cache.get(null))
+                .isNull();
     }
 
     @Test
@@ -180,13 +206,19 @@ abstract class BaseCacheTest {
         final Cache<String, Movie> cache = createCache(1);
         cache.put(AQUAMAN);
 
-        assertNull(cache.get(Movies.SNOWDEN_IMDB));
+        assertThat(cache.size())
+                .isEqualTo(1);
+        assertThat(cache.get(Movies.SNOWDEN_IMDB))
+                .isNull();
     }
 
     @Test
     final void getFromEmptyCache() {
         final Cache<String, Movie> cache = createCache(0);
 
-        assertNull(cache.get(Movies.SNOWDEN_IMDB));
+        assertThat(cache.size())
+                .isZero();
+        assertThat(cache.get(Movies.SNOWDEN_IMDB))
+                .isNull();
     }
 }

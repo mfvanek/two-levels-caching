@@ -12,7 +12,7 @@ import com.mfvanek.caching.exceptions.InvalidCacheTypeException;
 import com.mfvanek.caching.impl.LFUCache;
 import com.mfvanek.caching.impl.PersistenceLFUCache;
 import com.mfvanek.caching.impl.SimpleInMemoryCache;
-import com.mfvanek.caching.interfaces.CacheExtended;
+import com.mfvanek.caching.interfaces.Cache;
 import com.mfvanek.caching.interfaces.Cacheable;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -35,7 +35,7 @@ public class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
         this.type = type;
     }
 
-    public CacheExtended<K, V> build() {
+    public Cache<K, V> build() {
         switch (cacheType) {
             case SIMPLE:
                 return new SimpleInMemoryCache<>(type, maxCacheSize);

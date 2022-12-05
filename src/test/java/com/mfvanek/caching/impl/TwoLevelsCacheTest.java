@@ -13,11 +13,7 @@ import com.mfvanek.caching.models.Movie;
 import com.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class TwoLevelsCacheTest extends BaseCacheTest {
 
@@ -26,50 +22,63 @@ class TwoLevelsCacheTest extends BaseCacheTest {
     final void putOnlyValue() {
         final Cache<String, Movie> cache = createCache(1.0f);
 
-        List<Movie> evictedItems = cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(SNOWDEN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(1);
 
-        evictedItems = cache.put(AQUAMAN);
-        assertEquals(2, cache.size());
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(AQUAMAN))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(2);
 
-        evictedItems = cache.put(INCEPTION);
-        assertEquals(3, cache.size());
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(INCEPTION))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(3);
 
-        evictedItems = cache.put(INTERSTELLAR);
-        assertEquals(4, cache.size());
-        assertEquals(0, evictedItems.size());
+        assertThat(cache.put(INTERSTELLAR))
+                .isEmpty();
+        assertThat(cache.size())
+                .isEqualTo(4);
 
-        evictedItems = cache.put(ARRIVAL);
-        assertEquals(3, cache.size());
-        assertEquals(2, evictedItems.size());
-        assertIterableEquals(List.of(SNOWDEN, AQUAMAN), evictedItems);
-        assertTrue(cache.containsKey(Movies.ARRIVAL_IMDB));
-        assertTrue(cache.containsKey(Movies.INTERSTELLAR_IMDB));
+        assertThat(cache.put(ARRIVAL))
+                .hasSize(2)
+                .containsExactlyInAnyOrder(SNOWDEN, AQUAMAN);
+        assertThat(cache.size())
+                .isEqualTo(3);
+        assertThat(cache.containsKey(Movies.ARRIVAL_IMDB))
+                .isTrue();
+        assertThat(cache.containsKey(Movies.INTERSTELLAR_IMDB))
+                .isTrue();
     }
 
     @Test
     @Override
     final void size() {
         final Cache<String, Movie> cache = createCache();
-        assertEquals(0, cache.size());
+        assertThat(cache.size())
+                .isZero();
 
         cache.put(SNOWDEN);
-        assertEquals(1, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(1);
 
         cache.put(AQUAMAN);
-        assertEquals(2, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(2);
 
         cache.put(INCEPTION);
-        assertEquals(3, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(3);
 
         cache.put(INTERSTELLAR);
-        assertEquals(4, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(4);
 
         cache.put(ARRIVAL);
-        assertEquals(4, cache.size());
+        assertThat(cache.size())
+                .isEqualTo(4);
     }
 
     @Test
@@ -78,9 +87,14 @@ class TwoLevelsCacheTest extends BaseCacheTest {
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
 
-        assertEquals(2, cache.size());
-        assertTrue(cache.containsKey(Movies.SNOWDEN_IMDB)); // level 2
-        assertTrue(cache.containsKey(Movies.AQUAMAN_IMDB)); // level 1
+        assertThat(cache.size())
+                .isEqualTo(2);
+        assertThat(cache.containsKey(Movies.SNOWDEN_IMDB))
+                .as("level 2")
+                .isTrue();
+        assertThat(cache.containsKey(Movies.AQUAMAN_IMDB))
+                .as("level 1")
+                .isTrue();
     }
 
     @Override
