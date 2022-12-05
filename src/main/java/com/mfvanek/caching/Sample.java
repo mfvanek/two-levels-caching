@@ -26,6 +26,7 @@ import java.util.List;
  * Level 1 is memory, level 2 is filesystem.
  * Config params should let one specify the cache strategies and max sizes of level 1 and 2.
  */
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
 @Slf4j
 class Sample {
 
@@ -62,7 +63,7 @@ class Sample {
         log.info("First level cache max size is {}", FIRST_LEVEL_MAX_SIZE);
         log.info("Second level cache max size is {}", SECOND_LEVEL_MAX_SIZE);
 
-        cache = TwoLevelsCacheBuilder.getInstance(Movie.class)
+        cache = TwoLevelsCacheBuilder.builder(Movie.class)
                 .setBaseDirectory(directoryForPersistenceCache)
                 .setFirstLevelMaxSize(FIRST_LEVEL_MAX_SIZE)
                 .setSecondLevelMaxSize(SECOND_LEVEL_MAX_SIZE)

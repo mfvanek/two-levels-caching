@@ -112,7 +112,7 @@ class TwoLevelsCacheTest extends BaseCacheTest {
     }
 
     private static Cache<String, Movie> createCache(final int maxSize, final float evictionFactor) {
-        return TwoLevelsCacheBuilder.getInstance(Movie.class)
+        return TwoLevelsCacheBuilder.builder(Movie.class)
                 .setBaseDirectory(tempDir)
                 .setFirstLevelMaxSize(maxSize)
                 .setSecondLevelMaxSize(maxSize)

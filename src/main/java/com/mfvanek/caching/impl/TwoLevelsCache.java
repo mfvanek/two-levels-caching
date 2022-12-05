@@ -44,7 +44,7 @@ public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements
             if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
                 log.trace("Some elements have been evicted from the first level = {}", firstLevelEvictedItems);
                 evictedItems = new LinkedList<>();
-                for (Map.Entry<K, V> entry : firstLevelEvictedItems) {
+                for (final Map.Entry<K, V> entry : firstLevelEvictedItems) {
                     final List<Map.Entry<K, V>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());
                     evictedItems.addAll(secondLevelEvictedItems);
                 }

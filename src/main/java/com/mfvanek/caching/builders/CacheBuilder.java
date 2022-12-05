@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
+public final class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
 
     public static final int DEFAULT_MAX_SIZE = 10;
     public static final float DEFAULT_EVICTION_FACTOR = 0.2f;
@@ -80,7 +80,7 @@ public class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
                 .toAbsolutePath();
     }
 
-    public static <K, V extends Cacheable<K> & Serializable> CacheBuilder<K, V> getInstance(final Class<V> type) {
+    public static <K, V extends Cacheable<K> & Serializable> CacheBuilder<K, V> builder(final Class<V> type) {
         return new CacheBuilder<>(type);
     }
 }

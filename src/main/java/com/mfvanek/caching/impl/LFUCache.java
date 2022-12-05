@@ -87,6 +87,7 @@ public class LFUCache<K, V extends Cacheable<K>> extends AbstractMapCache<K, V> 
         return helper.getLowestFrequency();
     }
 
+    @SuppressWarnings("PMD.AssignmentInOperand")
     private List<Map.Entry<K, V>> doEviction() {
         // This method will be called only when cache is full
         final List<Map.Entry<K, V>> evictedItems = new LinkedList<>();

@@ -41,7 +41,7 @@ class SimpleInMemoryCacheTest extends BaseCacheTest {
 
     @Override
     protected Cache<String, Movie> createCache(final int maxSize) {
-        return CacheBuilder.getInstance(Movie.class)
+        return CacheBuilder.builder(Movie.class)
                 .setMaxSize(maxSize)
                 .build();
     }
