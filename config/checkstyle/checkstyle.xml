@@ -18,7 +18,11 @@
         <property name="max" value="199"/>
         <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
-    <!-- <module name="Header"> not set -->
+    <module name="Header">
+        <property name="header"
+                  value="/*\n * Copyright (c) 2018-2022. Ivan Vakhrushev. All rights reserved.\n * https://github.com/mfvanek/two-levels-caching\n *\n * Licensed under the Apache License 2.0\n */"/>
+        <property name="fileExtensions" value="java"/>
+    </module>
     <module name="NewlineAtEndOfFile"/>
     <module name="OrderedProperties"/>
     <module name="Translation"/>
