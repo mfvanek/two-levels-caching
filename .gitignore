@@ -1,5 +1,5 @@
 /target
 *.iws
-/caching.iml
-/caching.ipr
-/two-levels-caching.iml
+*.ipr
+*.iml
+/.idea/

@@ -68,6 +68,6 @@ public class Movies {
 
     @SneakyThrows
     private static SecureRandom getSecureRandom() {
-        return SecureRandom.getInstance("NativePRNG");
+        return SecureRandom.getInstance("SHA1PRNG");
     }
 }

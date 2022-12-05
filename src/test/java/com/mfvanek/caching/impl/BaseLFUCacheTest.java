@@ -26,13 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class BaseLFUCacheTest extends BaseCacheTest {
 
-    protected static Countable<String> asCountable(final Cache<String, Movie> cache)
-            throws ClassCastException {
+    @SuppressWarnings("unchecked")
+    protected static Countable<String> asCountable(final Cache<String, Movie> cache) {
         if (cache instanceof Countable) {
-            //noinspection unchecked
             return (Countable<String>) cache;
         }
-        throw new ClassCastException();
+        throw new ClassCastException(cache.getClass().toString());
     }
 
     private static CacheExtended<String, Movie> asExtended(final Cache<String, Movie> cache)
