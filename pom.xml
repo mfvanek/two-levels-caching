@@ -225,22 +225,22 @@
                                         <limit>
                                             <counter>BRANCH</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.72</minimum>
+                                            <minimum>0.73</minimum>
                                         </limit>
                                         <limit>
                                             <counter>CLASS</counter>
                                             <value>MISSEDCOUNT</value>
-                                            <maximum>2</maximum>
+                                            <maximum>1</maximum>
                                         </limit>
                                         <limit>
                                             <counter>METHOD</counter>
                                             <value>MISSEDCOUNT</value>
-                                            <maximum>27</maximum>
+                                            <maximum>27</maximum> <!-- +1 from windows build -->
                                         </limit>
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>MISSEDCOUNT</value>
-                                            <maximum>96</maximum>
+                                            <maximum>94</maximum> <!-- +2 from windows build -->
                                         </limit>
                                     </limits>
                                 </rule>

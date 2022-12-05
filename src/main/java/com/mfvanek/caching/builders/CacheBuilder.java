@@ -8,7 +8,6 @@
 package com.mfvanek.caching.builders;
 
 import com.mfvanek.caching.enums.CacheType;
-import com.mfvanek.caching.exceptions.InvalidCacheTypeException;
 import com.mfvanek.caching.impl.LFUCache;
 import com.mfvanek.caching.impl.PersistenceLFUCache;
 import com.mfvanek.caching.impl.SimpleInMemoryCache;
@@ -37,14 +36,13 @@ public class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
 
     public Cache<K, V> build() {
         switch (cacheType) {
-            case SIMPLE:
-                return new SimpleInMemoryCache<>(type, maxCacheSize);
             case LFU:
                 return new LFUCache<>(type, maxCacheSize, evictionFactor);
             case PERSISTENCE_LFU:
                 return new PersistenceLFUCache<>(type, maxCacheSize, evictionFactor, baseDirectory);
+            case SIMPLE:
             default:
-                throw new InvalidCacheTypeException(cacheType);
+                return new SimpleInMemoryCache<>(type, maxCacheSize);
         }
     }
 
