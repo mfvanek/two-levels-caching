@@ -5,6 +5,6 @@
     </Match>
     <Match>
         <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
-        <Class name="com.mfvanek.caching.builders.CacheBuilder"/>
+        <Class name="com.mfvanek.caching.builders.DefaultBaseDirectoryHelper"/>
     </Match>
 </FindBugsFilter>

@@ -17,7 +17,6 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.io.Serializable;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public final class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
 
@@ -35,15 +34,11 @@ public final class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
     }
 
     public Cache<K, V> build() {
-        switch (cacheType) {
-            case LFU:
-                return new LFUCache<>(type, maxCacheSize, evictionFactor);
-            case PERSISTENCE_LFU:
-                return new PersistenceLFUCache<>(type, maxCacheSize, evictionFactor, baseDirectory);
-            case SIMPLE:
-            default:
-                return new SimpleInMemoryCache<>(type, maxCacheSize);
-        }
+        return switch (cacheType) {
+            case LFU -> new LFUCache<>(type, maxCacheSize, evictionFactor);
+            case PERSISTENCE_LFU -> new PersistenceLFUCache<>(type, maxCacheSize, evictionFactor, baseDirectory);
+            case SIMPLE -> new SimpleInMemoryCache<>(type, maxCacheSize);
+        };
     }
 
     public CacheBuilder<K, V> setMaxSize(final int maxCacheSize) {
@@ -68,16 +63,12 @@ public final class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
 
     public static Path getDefaultBaseDirectory() {
         if (SystemUtils.IS_OS_MAC) {
-            return Paths.get(System.getProperty("user.home"), "Library/Caches", "jcache")
-                    .toAbsolutePath();
+            return DefaultBaseDirectoryHelper.forMacOs();
         }
-        if (SystemUtils.IS_OS_LINUX) {
-            return Paths.get("/var/tmp/", "jcache")
-                    .toAbsolutePath();
+        if (SystemUtils.IS_OS_WINDOWS) {
+            return DefaultBaseDirectoryHelper.forWindows();
         }
-        return Paths.get(".")
-                .resolve("/jcache/")
-                .toAbsolutePath();
+        return DefaultBaseDirectoryHelper.forLinux();
     }
 
     public static <K, V extends Cacheable<K> & Serializable> CacheBuilder<K, V> builder(final Class<V> type) {
