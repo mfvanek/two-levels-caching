@@ -9,4 +9,4 @@ Simple implementation of two levels caching in Java
 - Config params should let one specify the cache strategies and max sizes of level 1 and 2.
 
 ## Requirements
-Java 11+
+Java 17+

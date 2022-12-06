@@ -9,6 +9,9 @@ package com.mfvanek.caching.builders;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DefaultBaseDirectoryHelperTest {
@@ -16,19 +19,18 @@ class DefaultBaseDirectoryHelperTest {
     @Test
     void forMacOs() {
         assertThat(DefaultBaseDirectoryHelper.forMacOs().toString())
-                .startsWith("/Users/")
-                .endsWith("/Library/Caches/jcache");
+                .endsWith(String.join(File.separator, List.of("Library", "Caches", "jcache")));
     }
 
     @Test
     void forLinux() {
-        assertThat(DefaultBaseDirectoryHelper.forLinux())
-                .hasToString("/var/tmp/jcache");
+        assertThat(DefaultBaseDirectoryHelper.forLinux().toString())
+                .endsWith(String.join(File.separator, List.of("var", "tmp", "jcache")));
     }
 
     @Test
     void forWindows() {
-        assertThat(DefaultBaseDirectoryHelper.forWindows())
-                .hasToString("/jcache");
+        assertThat(DefaultBaseDirectoryHelper.forWindows().toString())
+                .endsWith(File.separator + "jcache");
     }
 }
