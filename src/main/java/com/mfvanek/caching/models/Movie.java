@@ -8,24 +8,14 @@
 package com.mfvanek.caching.models;
 
 import com.mfvanek.caching.interfaces.Cacheable;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
+import java.io.Serial;
 import java.io.Serializable;
 
-@Getter
-@ToString
-@EqualsAndHashCode
-@RequiredArgsConstructor
-public final class Movie implements Cacheable<String>, Serializable {
+public record Movie(String title, int year, String imdb) implements Cacheable<String>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = 7524472395622976117L;
-
-    private final String title;
-    private final int year;
-    private final String imdb;
 
     @Override
     public String getIdentifier() {

@@ -14,6 +14,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.stream.Stream;
 
 @UtilityClass
 public final class DirectoryUtils {
@@ -21,10 +22,11 @@ public final class DirectoryUtils {
     @SneakyThrows
     public static void deleteDirectory(final Path directoryToDelete) {
         if (Files.exists(directoryToDelete) && Files.isDirectory(directoryToDelete)) {
-            Files.walk(directoryToDelete)
-                    .sorted(Comparator.reverseOrder())
-                    .map(Path::toFile)
-                    .forEach(File::delete);
+            try (Stream<Path> walk = Files.walk(directoryToDelete)) {
+                walk.sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+            }
         }
     }
 }
