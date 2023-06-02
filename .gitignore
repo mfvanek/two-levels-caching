@@ -3,3 +3,5 @@
 *.ipr
 *.iml
 /.idea/
+/.gradle/
+/build/
