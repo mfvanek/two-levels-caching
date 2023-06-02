@@ -73,7 +73,7 @@ tasks {
     }
 
     jacocoTestCoverageVerification {
-        dependsOn(test)
+        dependsOn(jacocoTestReport)
         violationRules {
             rule {
                 limit {
@@ -114,7 +114,7 @@ tasks {
     }
 
     check {
-        dependsOn(jacocoTestReport, jacocoTestCoverageVerification)
+        dependsOn(jacocoTestCoverageVerification)
     }
 }
 
