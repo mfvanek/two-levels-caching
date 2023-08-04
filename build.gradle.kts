@@ -10,9 +10,9 @@ plugins {
     id("maven-publish")
     id("checkstyle")
     id("pmd")
-    id("com.github.spotbugs") version "5.1.1"
+    id("com.github.spotbugs") version "5.1.2"
     id("net.ltgt.errorprone") version "3.1.0"
-    id("io.freefair.lombok") version "8.1.0"
+    id("io.freefair.lombok") version "8.2.2"
     id("com.github.ben-manes.versions") version "0.47.0"
 }
 
@@ -29,7 +29,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.slf4j:slf4j-api:2.0.7")
-    implementation("ch.qos.logback:logback-classic:1.4.9")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
