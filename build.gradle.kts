@@ -1,3 +1,4 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import com.github.spotbugs.snom.Confidence
 import com.github.spotbugs.snom.Effort
 import com.github.spotbugs.snom.SpotBugsTask
@@ -9,9 +10,10 @@ plugins {
     id("maven-publish")
     id("checkstyle")
     id("pmd")
-    id("com.github.spotbugs") version "5.0.14"
+    id("com.github.spotbugs") version "5.1.1"
     id("net.ltgt.errorprone") version "3.1.0"
-    id("io.freefair.lombok") version "8.0.1"
+    id("io.freefair.lombok") version "8.1.0"
+    id("com.github.ben-manes.versions") version "0.47.0"
 }
 
 repositories {
@@ -24,19 +26,19 @@ version = "1.5.0-SNAPSHOT"
 description = "Simple implementation of two levels caching"
 
 dependencies {
-    implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.slf4j:slf4j-api:2.0.7")
-    implementation("ch.qos.logback:logback-classic:1.4.7")
+    implementation("ch.qos.logback:logback-classic:1.4.9")
 
-    testImplementation(platform("org.junit:junit-bom:5.9.3"))
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.assertj:assertj-core:3.24.2")
 
     //pitest("it.mulders.stryker:pit-dashboard-reporter:0.2.1")
     checkstyle("com.thomasjensen.checkstyle.addons:checkstyle-addons:7.0.1")
-    errorprone("com.google.errorprone:error_prone_core:2.19.1")
+    errorprone("com.google.errorprone:error_prone_core:2.21.1")
 }
 
 java {
@@ -73,7 +75,7 @@ tasks {
     }
 
     jacocoTestCoverageVerification {
-        dependsOn(test)
+        dependsOn(jacocoTestReport)
         violationRules {
             rule {
                 limit {
@@ -114,7 +116,7 @@ tasks {
     }
 
     check {
-        dependsOn(jacocoTestReport, jacocoTestCoverageVerification)
+        dependsOn(jacocoTestCoverageVerification)
     }
 }
 
@@ -157,5 +159,21 @@ tasks.withType<SpotBugsTask>().configureEach {
 publishing {
     publications.create<MavenPublication>("maven") {
         from(components["java"])
+    }
+}
+
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return isStable.not()
+}
+
+tasks.named<DependencyUpdatesTask>("dependencyUpdates").configure {
+    checkForGradleUpdate = true
+    gradleReleaseChannel = "current"
+    checkConstraints = true
+    rejectVersionIf {
+        isNonStable(candidate.version)
     }
 }
