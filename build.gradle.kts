@@ -29,7 +29,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.slf4j:slf4j-api:2.0.7")
-    implementation("ch.qos.logback:logback-classic:1.4.8")
+    implementation("ch.qos.logback:logback-classic:1.4.9")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
