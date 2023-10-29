@@ -10,7 +10,7 @@ package io.github.mfvanek.caching.interfaces;
 import java.util.List;
 import java.util.Map;
 
-public interface Cache<K, V extends Cacheable<K>> extends Countable<K> {
+public interface LeveledCache<K, V extends Cacheable<K>> extends Countable<K> {
 
     /**
      * Puts the element with given key in the cache.

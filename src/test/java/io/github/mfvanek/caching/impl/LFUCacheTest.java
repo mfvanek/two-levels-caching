@@ -9,28 +9,28 @@ package io.github.mfvanek.caching.impl;
 
 import io.github.mfvanek.caching.builders.CacheBuilder;
 import io.github.mfvanek.caching.enums.CacheType;
-import io.github.mfvanek.caching.interfaces.Cache;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import io.github.mfvanek.caching.models.Movie;
 
 @SuppressWarnings("PMD.TestClassWithoutTestCases")
 class LFUCacheTest extends BaseLFUCacheTest {
 
     @Override
-    protected Cache<String, Movie> createCache() {
+    protected LeveledCache<String, Movie> createCache() {
         return createCache(0.1f);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(final int maxSize) {
+    protected LeveledCache<String, Movie> createCache(final int maxSize) {
         return createCache(maxSize, 0.1f);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(final float evictionFactor) {
+    protected LeveledCache<String, Movie> createCache(final float evictionFactor) {
         return createCache(MAX_SIZE, evictionFactor);
     }
 
-    private static Cache<String, Movie> createCache(final int maxSize, final float evictionFactor) {
+    private static LeveledCache<String, Movie> createCache(final int maxSize, final float evictionFactor) {
         return CacheBuilder.builder(Movie.class)
                 .setCacheType(CacheType.LFU)
                 .setMaxSize(maxSize)

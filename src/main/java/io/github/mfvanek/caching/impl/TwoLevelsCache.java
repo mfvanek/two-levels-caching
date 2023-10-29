@@ -7,8 +7,8 @@
 
 package io.github.mfvanek.caching.impl;
 
-import io.github.mfvanek.caching.interfaces.Cache;
 import io.github.mfvanek.caching.interfaces.Cacheable;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -19,13 +19,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements Cache<K, V> {
+public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements LeveledCache<K, V> {
 
-    private final Cache<K, V> firstLevel;
-    private final Cache<K, V> secondLevel;
+    private final LeveledCache<K, V> firstLevel;
+    private final LeveledCache<K, V> secondLevel;
 
-    public TwoLevelsCache(final Cache<K, V> firstLevel,
-                          final Cache<K, V> secondLevel) {
+    public TwoLevelsCache(final LeveledCache<K, V> firstLevel,
+                          final LeveledCache<K, V> secondLevel) {
         this.firstLevel = firstLevel;
         this.secondLevel = secondLevel;
     }

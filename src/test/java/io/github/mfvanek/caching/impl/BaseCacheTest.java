@@ -9,7 +9,7 @@ package io.github.mfvanek.caching.impl;
 
 import io.github.mfvanek.caching.builders.CacheBuilder;
 import io.github.mfvanek.caching.helpers.DirectoryUtils;
-import io.github.mfvanek.caching.interfaces.Cache;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import io.github.mfvanek.caching.models.Movie;
 import io.github.mfvanek.caching.models.Movies;
 import lombok.SneakyThrows;
@@ -34,9 +34,9 @@ abstract class BaseCacheTest {
     protected static final Movie ARRIVAL = Movies.getArrival();
     protected static Path tempDir;
 
-    protected abstract Cache<String, Movie> createCache();
+    protected abstract LeveledCache<String, Movie> createCache();
 
-    protected abstract Cache<String, Movie> createCache(int maxSize);
+    protected abstract LeveledCache<String, Movie> createCache(int maxSize);
 
     @SneakyThrows
     @BeforeAll
@@ -52,7 +52,7 @@ abstract class BaseCacheTest {
 
     @Test
     void size() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         assertThat(cache.size())
                 .isZero();
 
@@ -71,7 +71,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void clear() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
         assertThat(cache.size())
@@ -88,7 +88,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void containsKey() {
-        final Cache<String, Movie> cache = createCache(3);
+        final LeveledCache<String, Movie> cache = createCache(3);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
@@ -103,7 +103,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void removeNotExisting() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
         assertThat(cache.size())
@@ -121,7 +121,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void remove() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
         assertThat(cache.size())
@@ -146,7 +146,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void putWithKey() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
 
         assertThat(cache.put(SNOWDEN.getIdentifier(), SNOWDEN))
                 .isEmpty();
@@ -156,7 +156,7 @@ abstract class BaseCacheTest {
 
     @Test
     void putTheSameValue() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         assertThat(cache.put(SNOWDEN))
                 .isEmpty();
         assertThat(cache.size())
@@ -176,7 +176,7 @@ abstract class BaseCacheTest {
 
     @Test
     void get() {
-        final Cache<String, Movie> cache = createCache(3);
+        final LeveledCache<String, Movie> cache = createCache(3);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
@@ -191,7 +191,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void getWithNull() {
-        final Cache<String, Movie> cache = createCache(10);
+        final LeveledCache<String, Movie> cache = createCache(10);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
@@ -204,7 +204,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void getWithNonExistingKey() {
-        final Cache<String, Movie> cache = createCache(1);
+        final LeveledCache<String, Movie> cache = createCache(1);
         cache.put(AQUAMAN);
 
         assertThat(cache.size())
@@ -215,7 +215,7 @@ abstract class BaseCacheTest {
 
     @Test
     final void getFromEmptyCache() {
-        final Cache<String, Movie> cache = createCache(0);
+        final LeveledCache<String, Movie> cache = createCache(0);
 
         assertThat(cache.size())
                 .isZero();

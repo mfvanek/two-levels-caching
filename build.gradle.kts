@@ -10,7 +10,7 @@ plugins {
     id("maven-publish")
     id("checkstyle")
     id("pmd")
-    id("com.github.spotbugs") version "5.1.4"
+    id("com.github.spotbugs") version "5.2.1"
     id("net.ltgt.errorprone") version "3.1.0"
     id("io.freefair.lombok") version "8.4"
     id("com.github.ben-manes.versions") version "0.49.0"
@@ -22,7 +22,7 @@ repositories {
 }
 
 group = "io.github.mfvanek"
-version = "1.5.0-SNAPSHOT"
+version = "1.6.0-SNAPSHOT"
 description = "Simple implementation of two levels caching"
 
 dependencies {

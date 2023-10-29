@@ -8,7 +8,7 @@
 package io.github.mfvanek.caching.impl;
 
 import io.github.mfvanek.caching.builders.TwoLevelsCacheBuilder;
-import io.github.mfvanek.caching.interfaces.Cache;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import io.github.mfvanek.caching.models.Movie;
 import io.github.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ class TwoLevelsCacheTest extends BaseCacheTest {
     @Test
     @Override
     final void putOnlyValue() {
-        final Cache<String, Movie> cache = createCache(1.0f);
+        final LeveledCache<String, Movie> cache = createCache(1.0f);
 
         assertThat(cache.put(SNOWDEN))
                 .isEmpty();
@@ -56,7 +56,7 @@ class TwoLevelsCacheTest extends BaseCacheTest {
     @Test
     @Override
     final void size() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         assertThat(cache.size())
                 .isZero();
 
@@ -83,7 +83,7 @@ class TwoLevelsCacheTest extends BaseCacheTest {
 
     @Test
     void containsKeyInSecondLevel() {
-        final Cache<String, Movie> cache = createCache(1);
+        final LeveledCache<String, Movie> cache = createCache(1);
         cache.put(AQUAMAN);
         cache.put(SNOWDEN);
 
@@ -98,20 +98,20 @@ class TwoLevelsCacheTest extends BaseCacheTest {
     }
 
     @Override
-    protected Cache<String, Movie> createCache() {
+    protected LeveledCache<String, Movie> createCache() {
         return createCache(MAX_SIZE);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(final int maxSize) {
+    protected LeveledCache<String, Movie> createCache(final int maxSize) {
         return createCache(maxSize, 0.1f);
     }
 
-    private static Cache<String, Movie> createCache(final float evictionFactor) {
+    private static LeveledCache<String, Movie> createCache(final float evictionFactor) {
         return createCache(MAX_SIZE, evictionFactor);
     }
 
-    private static Cache<String, Movie> createCache(final int maxSize, final float evictionFactor) {
+    private static LeveledCache<String, Movie> createCache(final int maxSize, final float evictionFactor) {
         return TwoLevelsCacheBuilder.builder(Movie.class)
                 .setBaseDirectory(tempDir)
                 .setFirstLevelMaxSize(maxSize)

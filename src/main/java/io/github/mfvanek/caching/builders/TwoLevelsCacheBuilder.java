@@ -9,8 +9,8 @@ package io.github.mfvanek.caching.builders;
 
 import io.github.mfvanek.caching.enums.CacheType;
 import io.github.mfvanek.caching.impl.TwoLevelsCache;
-import io.github.mfvanek.caching.interfaces.Cache;
 import io.github.mfvanek.caching.interfaces.Cacheable;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 
 import java.io.Serializable;
 import java.nio.file.Path;
@@ -28,13 +28,13 @@ public final class TwoLevelsCacheBuilder<K, V extends Cacheable<K> & Serializabl
         this.type = type;
     }
 
-    public Cache<K, V> build() {
+    public LeveledCache<K, V> build() {
         final CacheBuilder<K, V> builder = CacheBuilder.builder(type);
-        final Cache<K, V> firstLevel = builder.setCacheType(CacheType.LFU)
+        final LeveledCache<K, V> firstLevel = builder.setCacheType(CacheType.LFU)
                 .setMaxSize(firstLevelMaxSize)
                 .setEvictionFactor(firstLevelEvictionFactor)
                 .build();
-        final Cache<K, V> secondLevel = builder.setCacheType(CacheType.PERSISTENCE_LFU)
+        final LeveledCache<K, V> secondLevel = builder.setCacheType(CacheType.PERSISTENCE_LFU)
                 .setMaxSize(secondLevelMaxSize)
                 .setEvictionFactor(secondLevelEvictionFactor)
                 .setBaseDirectory(baseDirectory)

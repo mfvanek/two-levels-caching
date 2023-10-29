@@ -7,8 +7,8 @@
 
 package io.github.mfvanek.caching.impl;
 
-import io.github.mfvanek.caching.interfaces.Cache;
 import io.github.mfvanek.caching.interfaces.Countable;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import io.github.mfvanek.caching.models.Movie;
 import io.github.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
@@ -20,19 +20,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 abstract class BaseLFUCacheTest extends BaseCacheTest {
 
-    private static AbstractCache<String, Movie> asAbstractCache(final Cache<String, Movie> cache) {
+    private static AbstractCache<String, Movie> asAbstractCache(final LeveledCache<String, Movie> cache) {
         if (cache instanceof AbstractCache) {
             return (AbstractCache<String, Movie>) cache;
         }
         throw new ClassCastException(cache.getClass().toString());
     }
 
-    protected abstract Cache<String, Movie> createCache(float evictionFactor);
+    protected abstract LeveledCache<String, Movie> createCache(float evictionFactor);
 
     @Test
     @Override
     final void putTheSameValue() {
-        final Cache<String, Movie> cache = createCache(1.0f);
+        final LeveledCache<String, Movie> cache = createCache(1.0f);
         assertThat(cache.put(SNOWDEN))
                 .isEmpty();
         assertThat(cache.size())
@@ -51,7 +51,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     @Test
     @Override
     final void putOnlyValue() {
-        final Cache<String, Movie> cache = createCache(1.0f);
+        final LeveledCache<String, Movie> cache = createCache(1.0f);
 
         assertThat(cache.put(SNOWDEN))
                 .isEmpty();
@@ -80,7 +80,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
 
     @Test
     final void evictionWithDifferentFrequencies() {
-        final Cache<String, Movie> cache = createCache(1.0f);
+        final LeveledCache<String, Movie> cache = createCache(1.0f);
 
         assertThat(cache.put(SNOWDEN))
                 .isEmpty();
@@ -109,7 +109,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
     @Test
     @Override
     void get() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(INCEPTION);
         assertThat(cache.size())
@@ -156,7 +156,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
 
     @Test
     final void innerRemoveNotExisting() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
         assertThat(cache.size())
@@ -178,7 +178,7 @@ abstract class BaseLFUCacheTest extends BaseCacheTest {
 
     @Test
     final void innerRemove() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
         cache.put(SNOWDEN);
         cache.put(AQUAMAN);
         cache.get(Movies.SNOWDEN_IMDB);
