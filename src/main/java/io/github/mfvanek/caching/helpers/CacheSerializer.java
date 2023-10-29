@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 @UtilityClass
-public final class Serializer {
+public final class CacheSerializer {
 
     @SneakyThrows
     public static <V extends Serializable> Path serialize(final V value, final Path cacheFilePath) {

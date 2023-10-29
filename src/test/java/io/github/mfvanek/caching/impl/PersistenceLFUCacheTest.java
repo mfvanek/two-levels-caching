@@ -9,7 +9,7 @@ package io.github.mfvanek.caching.impl;
 
 import io.github.mfvanek.caching.builders.CacheBuilder;
 import io.github.mfvanek.caching.enums.CacheType;
-import io.github.mfvanek.caching.interfaces.Cache;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import io.github.mfvanek.caching.models.Movie;
 import io.github.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ class PersistenceLFUCacheTest extends BaseLFUCacheTest {
 
     @Test
     void usingDefaultDirectory() {
-        final Cache<String, Movie> cache = createCacheDefaultDirectory();
+        final LeveledCache<String, Movie> cache = createCacheDefaultDirectory();
         assertThat(cache.put(SNOWDEN))
                 .isEmpty();
 
@@ -42,21 +42,21 @@ class PersistenceLFUCacheTest extends BaseLFUCacheTest {
     }
 
     @Override
-    protected Cache<String, Movie> createCache() {
+    protected LeveledCache<String, Movie> createCache() {
         return createCache(0.1f);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(final int maxSize) {
+    protected LeveledCache<String, Movie> createCache(final int maxSize) {
         return createCache(maxSize, 0.1f, true);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(final float evictionFactor) {
+    protected LeveledCache<String, Movie> createCache(final float evictionFactor) {
         return createCache(MAX_SIZE, evictionFactor, true);
     }
 
-    private static Cache<String, Movie> createCache(final int maxSize, final float evictionFactor, final boolean useTmpDir) {
+    private static LeveledCache<String, Movie> createCache(final int maxSize, final float evictionFactor, final boolean useTmpDir) {
         final CacheBuilder<String, Movie> builder = CacheBuilder.builder(Movie.class)
                 .setCacheType(CacheType.PERSISTENCE_LFU)
                 .setMaxSize(maxSize)
@@ -67,7 +67,7 @@ class PersistenceLFUCacheTest extends BaseLFUCacheTest {
         return builder.build();
     }
 
-    private static Cache<String, Movie> createCacheDefaultDirectory() {
+    private static LeveledCache<String, Movie> createCacheDefaultDirectory() {
         return createCache(MAX_SIZE, 0.1f, false);
     }
 }

@@ -8,7 +8,7 @@
 package io.github.mfvanek.caching.impl;
 
 import io.github.mfvanek.caching.builders.CacheBuilder;
-import io.github.mfvanek.caching.interfaces.Cache;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import io.github.mfvanek.caching.models.Movie;
 import io.github.mfvanek.caching.models.Movies;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ class SimpleInMemoryCacheTest extends BaseCacheTest {
     @Test
     @Override
     void putOnlyValue() {
-        final Cache<String, Movie> cache = createCache();
+        final LeveledCache<String, Movie> cache = createCache();
 
         assertThat(cache.put(SNOWDEN))
                 .isEmpty();
@@ -35,12 +35,12 @@ class SimpleInMemoryCacheTest extends BaseCacheTest {
     }
 
     @Override
-    protected Cache<String, Movie> createCache() {
+    protected LeveledCache<String, Movie> createCache() {
         return createCache(MAX_SIZE);
     }
 
     @Override
-    protected Cache<String, Movie> createCache(final int maxSize) {
+    protected LeveledCache<String, Movie> createCache(final int maxSize) {
         return CacheBuilder.builder(Movie.class)
                 .setMaxSize(maxSize)
                 .build();

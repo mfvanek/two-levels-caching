@@ -9,7 +9,7 @@ package io.github.mfvanek.caching;
 
 import io.github.mfvanek.caching.builders.TwoLevelsCacheBuilder;
 import io.github.mfvanek.caching.helpers.DirectoryUtils;
-import io.github.mfvanek.caching.interfaces.Cache;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import io.github.mfvanek.caching.models.Movie;
 import io.github.mfvanek.caching.models.Movies;
 import lombok.SneakyThrows;
@@ -31,7 +31,7 @@ import java.util.List;
 class Sample {
 
     private static Path directoryForPersistenceCache;
-    private static Cache<String, Movie> cache;
+    private static LeveledCache<String, Movie> cache;
     private static final int FIRST_LEVEL_MAX_SIZE = 3;
     private static final int SECOND_LEVEL_MAX_SIZE = 10;
     private static final float FIRST_LEVEL_EVICTION_FACTOR = 0.5f; // Two items will be evicted from the cache when it becomes full

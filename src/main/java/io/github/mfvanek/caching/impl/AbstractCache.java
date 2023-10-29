@@ -7,8 +7,8 @@
 
 package io.github.mfvanek.caching.impl;
 
-import io.github.mfvanek.caching.interfaces.Cache;
 import io.github.mfvanek.caching.interfaces.Cacheable;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * @param <K> key type
  * @param <V> value type, should be {@link Cacheable}
  */
-abstract class AbstractCache<K, V extends Cacheable<K>> implements Cache<K, V> {
+abstract class AbstractCache<K, V extends Cacheable<K>> implements LeveledCache<K, V> {
 
     private final Class<V> type;
     private final int maxCacheSize;

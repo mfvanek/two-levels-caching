@@ -7,8 +7,8 @@
 
 package io.github.mfvanek.caching.impl;
 
+import io.github.mfvanek.caching.helpers.CacheSerializer;
 import io.github.mfvanek.caching.helpers.LFUCacheHelper;
-import io.github.mfvanek.caching.helpers.Serializer;
 import io.github.mfvanek.caching.interfaces.Cacheable;
 import lombok.SneakyThrows;
 
@@ -62,7 +62,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
             }
             helper.rememberFrequency(0, key);
         }
-        innerMap.put(key, Serializer.serialize(value, cacheFilePath));
+        innerMap.put(key, CacheSerializer.serialize(value, cacheFilePath));
         return evictedItems;
     }
 
@@ -71,7 +71,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
         V value = null;
         final Path cacheFilePath = innerMap.get(key);
         if (cacheFilePath != null) {
-            value = Serializer.deserialize(getType(), cacheFilePath);
+            value = CacheSerializer.deserialize(getType(), cacheFilePath);
             helper.updateFrequency(key);
         }
         return value;
@@ -102,7 +102,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
         V deletedValue = null;
         final Path cacheFilePath = innerMap.remove(key);
         if (cacheFilePath != null) {
-            deletedValue = Serializer.deserialize(getType(), cacheFilePath);
+            deletedValue = CacheSerializer.deserialize(getType(), cacheFilePath);
             Files.deleteIfExists(cacheFilePath);
         }
         return deletedValue;

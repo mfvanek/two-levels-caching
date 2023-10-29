@@ -11,8 +11,8 @@ import io.github.mfvanek.caching.enums.CacheType;
 import io.github.mfvanek.caching.impl.LFUCache;
 import io.github.mfvanek.caching.impl.PersistenceLFUCache;
 import io.github.mfvanek.caching.impl.SimpleInMemoryCache;
-import io.github.mfvanek.caching.interfaces.Cache;
 import io.github.mfvanek.caching.interfaces.Cacheable;
+import io.github.mfvanek.caching.interfaces.LeveledCache;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.Serializable;
@@ -33,7 +33,7 @@ public final class CacheBuilder<K, V extends Cacheable<K> & Serializable> {
         this.type = type;
     }
 
-    public Cache<K, V> build() {
+    public LeveledCache<K, V> build() {
         return switch (cacheType) {
             case LFU -> new LFUCache<>(type, maxCacheSize, evictionFactor);
             case PERSISTENCE_LFU -> new PersistenceLFUCache<>(type, maxCacheSize, evictionFactor, baseDirectory);
