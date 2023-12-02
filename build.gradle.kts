@@ -10,7 +10,7 @@ plugins {
     id("maven-publish")
     id("checkstyle")
     id("pmd")
-    id("com.github.spotbugs") version "5.2.4"
+    id("com.github.spotbugs") version "6.0.1"
     id("net.ltgt.errorprone") version "3.1.0"
     id("io.freefair.lombok") version "8.4"
     id("com.github.ben-manes.versions") version "0.50.0"
@@ -22,14 +22,14 @@ repositories {
 }
 
 group = "io.github.mfvanek"
-version = "1.6.0-SNAPSHOT"
+version = "1.6.1"
 description = "Simple implementation of two levels caching"
 
 dependencies {
     implementation("org.apache.commons:commons-lang3:3.14.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.slf4j:slf4j-api:2.0.9")
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
 
     testImplementation(platform("org.junit:junit-bom:5.10.1"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
@@ -42,18 +42,25 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+        implementation = JvmImplementation.VENDOR_SPECIFIC
+    }
     withJavadocJar()
     withSourcesJar()
 }
 tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-parameters")
     options.errorprone {
         disableWarningsInGeneratedCode.set(true)
     }
 }
 
 tasks {
+    wrapper {
+        gradleVersion = "8.5"
+    }
+
     test {
         useJUnitPlatform()
         dependsOn(checkstyleMain, checkstyleTest, pmdMain, pmdTest, spotbugsMain, spotbugsTest)
