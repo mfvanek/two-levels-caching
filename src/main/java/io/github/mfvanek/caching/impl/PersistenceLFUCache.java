@@ -16,9 +16,9 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -92,7 +92,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
         Integer frequency = INVALID_FREQUENCY;
         final V deletedValue = doRemove(key);
         if (deletedValue != null) {
-            frequency = helper.removeKeyFromFrequenciesList(key);
+            frequency = helper.removeKeyFromFrequencies(key);
         }
         return new AbstractMap.SimpleEntry<>(frequency, deletedValue);
     }
@@ -144,7 +144,7 @@ public class PersistenceLFUCache<K, V extends Cacheable<K> & Serializable> exten
     @SuppressWarnings("PMD.AssignmentInOperand")
     private List<Map.Entry<K, V>> doEviction() {
         // This method will be called only when cache is full
-        final List<Map.Entry<K, V>> evictedItems = new LinkedList<>();
+        final List<Map.Entry<K, V>> evictedItems = new ArrayList<>();
         final float target = getCacheMaxSize() * helper.getEvictionFactor();
         int currentlyDeleted = 0;
         while (currentlyDeleted < target) {

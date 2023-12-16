@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +43,7 @@ public class TwoLevelsCache<K, V extends Cacheable<K> & Serializable> implements
             final List<Map.Entry<K, V>> firstLevelEvictedItems = firstLevel.put(key, value);
             if (CollectionUtils.isNotEmpty(firstLevelEvictedItems)) {
                 log.trace("Some elements have been evicted from the first level = {}", firstLevelEvictedItems);
-                evictedItems = new LinkedList<>();
+                evictedItems = new ArrayList<>();
                 for (final Map.Entry<K, V> entry : firstLevelEvictedItems) {
                     final List<Map.Entry<K, V>> secondLevelEvictedItems = secondLevel.put(entry.getKey(), entry.getValue());
                     evictedItems.addAll(secondLevelEvictedItems);

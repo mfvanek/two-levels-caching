@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
     <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,CT_CONSTRUCTOR_THROW"/>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,CT_CONSTRUCTOR_THROW,SLF4J_LOGGER_SHOULD_BE_NON_STATIC"/>
     </Match>
     <Match>
         <Bug pattern="DMI_HARDCODED_ABSOLUTE_FILENAME"/>
         <Class name="io.github.mfvanek.caching.builders.DefaultBaseDirectoryHelper"/>
+    </Match>
+    <Match>
+        <Bug pattern="IMC_IMMATURE_CLASS_BAD_SERIALVERSIONUID,IMC_IMMATURE_CLASS_WRONG_FIELD_ORDER"/>
+        <Class name="io.github.mfvanek.caching.models.Movie"/>
+    </Match>
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS,WEM_WEAK_EXCEPTION_MESSAGING,IMC_IMMATURE_CLASS_NO_TOSTRING,OBJECT_DESERIALIZATION"/>
+    </Match>
+    <Match>
+        <Bug pattern="LO_INVALID_STRING_FORMAT_NOTATION"/>
+        <Class name="io.github.mfvanek.caching.Sample"/>
+    </Match>
+    <Match>
+        <Bug pattern="MOM_MISLEADING_OVERLOAD_MODEL"/>
+        <Class name="~.*Test"/>
     </Match>
 </FindBugsFilter>
