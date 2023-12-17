@@ -16,19 +16,20 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class LFUCacheHelper<K> implements Countable<K> {
 
     private final float evictionFactor;
-    private final Map<Integer, Set<K>> frequenciesList;
+    private final SortedMap<Integer, Set<K>> frequencies;
     private final Map<K, Integer> innerFrequencyMap;
 
     public LFUCacheHelper(final float evictionFactor) {
         LFUCacheHelper.validateEvictionFactor(evictionFactor);
 
         this.evictionFactor = evictionFactor;
-        this.frequenciesList = new TreeMap<>();
+        this.frequencies = new TreeMap<>();
         this.innerFrequencyMap = new HashMap<>();
     }
 
@@ -44,7 +45,7 @@ public class LFUCacheHelper<K> implements Countable<K> {
 
     @Override
     public int getLowestFrequency() {
-        return frequenciesList.keySet()
+        return frequencies.keySet()
                 .stream()
                 .min(Integer::compareTo)
                 .orElse(0);
@@ -52,14 +53,15 @@ public class LFUCacheHelper<K> implements Countable<K> {
 
     @Override
     public int frequencyOf(final K key) {
-        if (innerFrequencyMap.containsKey(key)) {
-            return innerFrequencyMap.get(key);
+        final Integer value = innerFrequencyMap.get(key);
+        if (value != null) {
+            return value;
         }
         throw new NoSuchElementException("Key " + key + " not found in the cache");
     }
 
     public void clear() {
-        frequenciesList.clear();
+        frequencies.clear();
         innerFrequencyMap.clear();
     }
 
@@ -67,27 +69,27 @@ public class LFUCacheHelper<K> implements Countable<K> {
         innerFrequencyMap.remove(key);
     }
 
-    public Integer removeKeyFromFrequenciesList(final K key) {
+    public Integer removeKeyFromFrequencies(final K key) {
         final Integer frequency = innerFrequencyMap.remove(key);
-        removeKeyFromFrequenciesList(key, frequency);
+        removeKeyFromFrequencies(key, frequency);
         return frequency;
     }
 
     @SuppressWarnings("PMD.AvoidLiteralsInIfCondition")
-    private void removeKeyFromFrequenciesList(final K key, final Integer frequency) {
-        final Set<K> keys = frequenciesList.get(frequency);
+    private void removeKeyFromFrequencies(final K key, final Integer frequency) {
+        final Set<K> keys = frequencies.get(frequency);
         if (keys.size() > 1) {
             keys.remove(key);
         } else {
-            frequenciesList.remove(frequency);
+            frequencies.remove(frequency);
         }
     }
 
     public void rememberFrequency(final Integer frequency, final K key) {
-        Set<K> keys = frequenciesList.get(frequency);
+        Set<K> keys = frequencies.get(frequency);
         if (keys == null) {
             keys = new HashSet<>(Set.of(key));
-            frequenciesList.put(frequency, keys);
+            frequencies.put(frequency, keys);
         } else {
             keys.add(key);
         }
@@ -96,16 +98,16 @@ public class LFUCacheHelper<K> implements Countable<K> {
 
     public void updateFrequency(final K key) {
         final Integer frequency = innerFrequencyMap.get(key);
-        removeKeyFromFrequenciesList(key, frequency);
+        removeKeyFromFrequencies(key, frequency);
         rememberFrequency(frequency + 1, key);
     }
 
     public Iterator<K> iteratorForLowestFrequency() {
         // We need to remove entries with empty values
-        frequenciesList.entrySet().removeIf(e -> CollectionUtils.isEmpty(e.getValue()));
+        frequencies.entrySet().removeIf(e -> CollectionUtils.isEmpty(e.getValue()));
 
         final Integer lowestFrequency = getLowestFrequency();
-        final Set<K> keys = frequenciesList.get(lowestFrequency);
+        final Set<K> keys = frequencies.get(lowestFrequency);
         return keys.iterator();
     }
 }

@@ -10,7 +10,7 @@ plugins {
     id("maven-publish")
     id("checkstyle")
     id("pmd")
-    id("com.github.spotbugs") version "6.0.2"
+    id("com.github.spotbugs") version "6.0.4"
     id("net.ltgt.errorprone") version "3.1.0"
     id("io.freefair.lombok") version "8.4"
     id("com.github.ben-manes.versions") version "0.50.0"
@@ -22,7 +22,7 @@ repositories {
 }
 
 group = "io.github.mfvanek"
-version = "1.6.1"
+version = "1.6.2"
 description = "Simple implementation of two levels caching"
 
 dependencies {
@@ -38,7 +38,13 @@ dependencies {
 
     //pitest("it.mulders.stryker:pit-dashboard-reporter:0.2.1")
     checkstyle("com.thomasjensen.checkstyle.addons:checkstyle-addons:7.0.1")
+
     errorprone("com.google.errorprone:error_prone_core:2.23.0")
+    errorprone("jp.skypencil.errorprone.slf4j:errorprone-slf4j:0.1.21")
+
+    spotbugsPlugins("jp.skypencil.findbugs.slf4j:bug-pattern:1.5.0")
+    spotbugsPlugins("com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0")
+    spotbugsPlugins("com.mebigfatguy.sb-contrib:sb-contrib:7.6.3")
 }
 
 java {
@@ -53,6 +59,7 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
     options.errorprone {
         disableWarningsInGeneratedCode.set(true)
+        disable("Slf4jLoggerShouldBeNonStatic")
     }
 }
 

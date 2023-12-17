@@ -15,7 +15,7 @@ import java.io.Serializable;
 public record Movie(String title, int year, String imdb) implements Cacheable<String>, Serializable {
 
     @Serial
-    private static final long serialVersionUID = 7524472395622976117L;
+    private static final long serialVersionUID = 7727284494968355657L;
 
     @Override
     public String getIdentifier() {
