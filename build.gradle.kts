@@ -59,7 +59,7 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
     options.errorprone {
         disableWarningsInGeneratedCode.set(true)
-        disable("Slf4jLoggerShouldBeNonStatic")
+        disable("Slf4jLoggerShouldBeNonStatic", "TruthSelfEquals")
     }
 }
 
