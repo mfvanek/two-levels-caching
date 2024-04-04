@@ -8,6 +8,7 @@
 package io.github.mfvanek.caching.builders;
 
 import io.github.mfvanek.caching.impl.SimpleInMemoryCache;
+import io.github.mfvanek.caching.interfaces.Cacheable;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,7 +17,7 @@ class CacheBuilderTest {
 
     @Test
     void shouldReturnValueOnNullType() {
-        final var builder = CacheBuilder.builder(null);
+        final CacheBuilder<Object, ? extends Cacheable<Object>> builder = CacheBuilder.builder(null);
         assertThat(builder.build())
                 .isNotNull()
                 .isInstanceOf(SimpleInMemoryCache.class);
