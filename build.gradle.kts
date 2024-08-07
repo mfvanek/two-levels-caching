@@ -28,7 +28,7 @@ description = "Simple implementation of two levels caching"
 dependencies {
     implementation("org.apache.commons:commons-lang3:3.15.0")
     implementation("org.apache.commons:commons-collections4:4.4")
-    implementation("org.slf4j:slf4j-api:2.0.13")
+    implementation("org.slf4j:slf4j-api:2.0.14")
     implementation("ch.qos.logback:logback-classic:1.5.6")
 
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
