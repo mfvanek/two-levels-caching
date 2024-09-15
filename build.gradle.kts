@@ -26,7 +26,7 @@ version = "1.6.2"
 description = "Simple implementation of two levels caching"
 
 dependencies {
-    implementation("org.apache.commons:commons-lang3:3.16.0")
+    implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("org.apache.commons:commons-collections4:4.4")
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("ch.qos.logback:logback-classic:1.5.7")
