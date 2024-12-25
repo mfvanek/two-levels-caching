@@ -34,7 +34,7 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.11.3"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testImplementation("org.assertj:assertj-core:3.26.3")
+    testImplementation("org.assertj:assertj-core:3.27.0")
 
     //pitest("it.mulders.stryker:pit-dashboard-reporter:0.2.1")
     checkstyle("com.thomasjensen.checkstyle.addons:checkstyle-addons:7.0.1")
